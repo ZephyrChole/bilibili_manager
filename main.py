@@ -13,9 +13,9 @@ from live_record import LiveRecordDownloader
 def main():
     cur_path = '/home/pi/programs/bilibili_manager'
     os.chdir(cur_path)
-    crDownloader = CustomRecordDownloader(9035182, r'/home/pi/programs/bili',
+    crDownloader = CustomRecordDownloader(9035182, r'/media/pi/sda1/media/programs/bili',
                                           r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official/投稿视频')
-    lrDownloader = LiveRecordDownloader('3509872', r'/home/pi/programs/bili',
+    lrDownloader = LiveRecordDownloader('3509872', r'/media/pi/sda1/media/programs/bili',
                                         r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official/直播回放')
     crDownloader.main()
     lrDownloader.main()
