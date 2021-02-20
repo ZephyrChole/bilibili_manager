@@ -31,7 +31,16 @@ class CustomRecordDownloader:
         os.system('rm "{}"'.format(source_path))
 
     def get_bvs(self):
-        return [video.get('bvid') for video in user.get_videos_raw(uid=self.uid).get('list').get('vlist')]
+        bvids = []
+        page = 1
+        while True:
+            vlist = user.get_videos_raw(uid=self.uid, pn=page).get('list').get('vlist')
+            if len(vlist):
+                bvids.extend([video.get('bvid') for video in vlist])
+                page += 1
+            else:
+                break
+        return set(bvids)
 
     def download(self, bvs):
         def clear_tem_download(download_repo, del_fun):
