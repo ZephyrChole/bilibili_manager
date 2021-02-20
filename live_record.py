@@ -51,7 +51,7 @@ class LiveRecordDownloader:
 
     @staticmethod
     def copy_(source_path, target_path):
-        os.system('copy "{}" "{}"'.format(source_path, target_path))
+        os.system('cp "{}" "{}"'.format(source_path, target_path))
 
     @staticmethod
     def del_(source_path):
@@ -119,7 +119,7 @@ class LiveRecordDownloader:
         cwd = os.getcwd()
         os.chdir(self.start_script_repo_path)
         for info in tqdm(infos):
-            command = r'python "{}" --bd --ym --yac --yad --yr --nol --yf -d 1 -p a -y -i {}'.format(
+            command = r'python3 "{}" --bd --ym --yac --yad --yr --nol --yf -d 1 -p a -y -i {}'.format(
                 os.path.join(self.start_script_repo_path, 'start.py'), info.url)
             if not check_for_exists(info, self.repo_path):
                 os.system(command)

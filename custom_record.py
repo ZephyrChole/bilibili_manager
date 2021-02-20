@@ -24,7 +24,7 @@ class CustomRecordDownloader:
 
     @staticmethod
     def copy_(source_path, target_path):
-        os.system('copy "{}" "{}"'.format(source_path, target_path))
+        os.system('cp "{}" "{}"'.format(source_path, target_path))
 
     @staticmethod
     def del_(source_path):
@@ -48,7 +48,7 @@ class CustomRecordDownloader:
         os.chdir(self.download_script_repo_path)
         for bv in tqdm(bvs):
             if not check_for_exists(self.repo_path, bv):
-                os.system('python "{}" --ym --yac --yad --yf --ar --yda --nbd --nol --in -y -d 3 -p a -i {}'.format(
+                os.system('python3 "{}" --ym --yac --yad --yf --ar --yda --nbd --nol --in -y -d 3 -p a -i {}'.format(
                     os.path.join(self.download_script_repo_path, 'start.py'), bv))
                 self.organize(bv)
 
