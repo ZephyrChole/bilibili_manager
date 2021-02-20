@@ -55,7 +55,7 @@ class LiveRecordDownloader:
 
     @staticmethod
     def del_(source_path):
-        os.system('del "{}"'.format(source_path))
+        os.system('rm "{}"'.format(source_path))
 
     def enter_live(self):
         self.browser.get('https://live.bilibili.com/{}'.format(self.live_id))

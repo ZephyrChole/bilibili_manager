@@ -28,7 +28,7 @@ class CustomRecordDownloader:
 
     @staticmethod
     def del_(source_path):
-        os.system('del "{}"'.format(source_path))
+        os.system('rm "{}"'.format(source_path))
 
     def get_bvs(self):
         return [video.get('bvid') for video in user.get_videos_raw(uid=self.uid).get('list').get('vlist')]
