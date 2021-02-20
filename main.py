@@ -9,10 +9,10 @@ from live_record import LiveRecordDownloader
 
 
 def main():
-    crDownloader = CustomRecordDownloader(9035182, r'E:\playground\from github\bili',
-                                          r'I:\media\bilibili_record\3509872-有毒的小蘑菇酱\test_custom')
-    lrDownloader = LiveRecordDownloader('3509872', r'E:\playground\from github\bili',
-                                        r'I:\media\bilibili_record\3509872-有毒的小蘑菇酱\test_record')
+    crDownloader = CustomRecordDownloader(9035182, r'/home/pi/programs/bili',
+                                          r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official/投稿视频')
+    lrDownloader = LiveRecordDownloader('3509872', r'/home/pi/programs/bili',
+                                        r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official/直播回放')
     crDownloader.main()
     lrDownloader.main()
 
