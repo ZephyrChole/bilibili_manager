@@ -8,5 +8,6 @@ import time
 # @time: 2/20/2021 1:54 PM
 import main
 
-main.main()
-time.sleep(24 * 60 * 60)
+while True:
+    main.main()
+    time.sleep(24 * 60 * 60)
