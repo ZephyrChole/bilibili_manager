@@ -101,7 +101,7 @@ class CustomRecordDownloader:
             nonexistent_pages = get_nonexistent_pages(self.repo_path, bv, self.logger)
             if len(nonexistent_pages):
                 download(os.path.join(self.download_script_repo_path, 'start.py'), nonexistent_pages, bv)
-            self.organize(bv)
+                self.organize(bv)
 
     def organize(self, bv):
         def get_filename(keyword, download_script_repo_path):
