@@ -5,6 +5,7 @@
 # @file: live_record.py
 # @time: 2/20/2021 12:44 PM
 
+import logging
 import os
 import re
 
@@ -33,10 +34,11 @@ class LiveRecordDownloadInfo:
 
 
 class LiveRecordDownloader:
-    def __init__(self, live_id, start_script_repo_path, repo_path):
+    def __init__(self, live_id, start_script_repo_path, repo_path, logger: logging.Logger):
         self.live_id = live_id
         self.start_script_repo_path = start_script_repo_path
         self.repo_path = repo_path
+        self.logger = logger
         chrome_options = Options()
         chrome_options.add_argument('--headless')
         self.browser = webdriver.Chrome(chrome_options=chrome_options)
@@ -47,7 +49,7 @@ class LiveRecordDownloader:
         self.get_record_page()
         download_infos = self.get_urls()
         self.browser.quit()
-        self.download(download_infos)
+        self.start_download(download_infos)
 
     @staticmethod
     def copy_(source_path, target_path):
@@ -58,6 +60,7 @@ class LiveRecordDownloader:
         os.system('rm "{}"'.format(source_path))
 
     def enter_live(self):
+        self.logger.info('entered live')
         self.browser.get('https://live.bilibili.com/{}'.format(self.live_id))
 
     def get_record_page(self):
@@ -65,6 +68,7 @@ class LiveRecordDownloader:
             lambda x: x.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative'))
         record_button = self.browser.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative')
         record_button.click()
+        self.logger.info('got record page')
 
     def get_urls(self):
         def get_url_and_date(browser, count):
@@ -85,12 +89,14 @@ class LiveRecordDownloader:
                 count += 1
             except:
                 break
+        self.logger.info('got download_infos,length:{}'.format(len(download_infos)))
         return download_infos
 
-    def download(self, infos):
-        def clear_tem_download(download_repo, del_fun):
+    def start_download(self, infos):
+        def clear_tem_download(download_repo, del_fun, logger):
             for i in os.listdir(download_repo):
                 del_fun(os.path.join(download_repo, i))
+            logger.info('cleared tem download')
 
         def get_filename(repo_path, keyword):
             for i in os.listdir(repo_path):
@@ -105,32 +111,38 @@ class LiveRecordDownloader:
             self.copy_(os.path.join(download_path, file_name), os.path.join(repo_folder_path, file_name))
             self.del_(os.path.join(download_path, file_name))
 
-        def check_for_exists(info, repo_path):
+        def check_for_exists(info, repo_path, logger):
             repo_folder_path = os.path.join(repo_path, info.get_date())
             if not os.path.exists(repo_folder_path) or not os.path.isdir(repo_folder_path):
                 return False
             else:
                 for file in os.listdir(repo_folder_path):
                     if re.search(info.id, file):
+                        logger.info('exists')
                         return True
+            logger.info('not exist')
             return False
 
-        # clear_tem_download(os.path.join(self.start_script_repo_path, 'Download'), self.del_)
+        # clear_tem_download(os.path.join(self.start_script_repo_path, 'Download'), self.del_, self.logger)
         cwd = os.getcwd()
         os.chdir(self.start_script_repo_path)
         for info in tqdm(infos):
-            command = r'python3 "{}" --bd --ym --yac --yad --yr --nol --yf --ms 3M -d 1 -p a -y -i {}'.format(
-                os.path.join(self.start_script_repo_path, 'start.py'), info.url)
-            if not check_for_exists(info, self.repo_path):
-                os.system(command)
+            if not check_for_exists(info, self.repo_path, self.logger):
+                os.system(r'python3 "{}" --bd --ym --yac --yad --yr --nol --yf --ms 3M -d 1 -p a -y -i {}'.format(
+                    os.path.join(self.start_script_repo_path, 'start.py'), info.url))
                 organize(os.path.join(self.start_script_repo_path, 'Download'), info, self.repo_path)
         os.chdir(cwd)
 
 
 def main():
-    r = LiveRecordDownloader('3509872', r'E:\playground\from github\bili',
-                             r'I:\media\bilibili_record\3509872-有毒的小蘑菇酱\test_record')
-    r.main()
+    logger = logging.getLogger('LR')
+    logger.setLevel(logging.INFO)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    logger.addHandler(console_handler)
+    LRDownloader = LiveRecordDownloader('3509872', r'E:\playground\from github\bili',
+                                        r'I:\media\bilibili_record\3509872-有毒的小蘑菇酱\test_record', logger)
+    LRDownloader.main()
 
 
 if __name__ == '__main__':
