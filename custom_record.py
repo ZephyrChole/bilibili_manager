@@ -66,6 +66,7 @@ class CustomRecordDownloader:
             return np
 
         def download(download_script_path, pages, bv):
+            pages = list(map(lambda x: str(x), pages))
             python_ver_and_script = 'python3 {}'.format(download_script_path)  # python & download script path
             highest_image_quality = '--ym'
             continued_download = '--yac'
