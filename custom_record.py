@@ -65,7 +65,7 @@ class CustomRecordDownloader:
             logger.info('got nonexistent_pages,length:{}'.format(np))
             return np
 
-        def download(download_script_path, p, bv):
+        def download(download_script_path, pages, bv):
             python_ver_and_script = 'python3 {}'.format(download_script_path)  # python & download script path
             highest_image_quality = '--ym'
             continued_download = '--yac'
@@ -77,7 +77,7 @@ class CustomRecordDownloader:
             overwrite_duplicate_files = '-y'
             download_video_method = '-d 3'  # 1.当前弹幕 2.全弹幕 3.视频 4.当前弹幕+视频 5.全弹幕+视频 6.仅字幕 7.仅封面图片 8.仅音频
             download_audio_method = '-d 8'
-            page = '-p {}'.format(p)
+            page = '-p {}'.format(','.join(pages))
             input_ = '-i {}'.format(bv)
             download_video_parameters = [python_ver_and_script, highest_image_quality, continued_download,
                                          delete_useless_file_after_downloading,
@@ -94,8 +94,7 @@ class CustomRecordDownloader:
         os.chdir(self.download_script_repo_path)
         for bv in tqdm(bvs):
             nonexistent_pages = get_nonexistent_pages(self.repo_path, bv, self.logger)
-            for page in nonexistent_pages:
-                download(os.path.join(self.download_script_repo_path, 'start.py'), page, bv)
+            download(os.path.join(self.download_script_repo_path, 'start.py'), nonexistent_pages, bv)
             self.organize(bv)
 
     def organize(self, bv):
