@@ -94,10 +94,9 @@ class CustomRecordDownloader:
         os.chdir(self.download_script_repo_path)
         for bv in tqdm(bvs):
             nonexistent_pages = get_nonexistent_pages(self.repo_path, bv, self.logger)
-            if not len(nonexistent_pages):
-                for page in nonexistent_pages:
-                    download(os.path.join(self.download_script_repo_path, 'start.py'), page, bv)
-                self.organize(bv)
+            for page in nonexistent_pages:
+                download(os.path.join(self.download_script_repo_path, 'start.py'), page, bv)
+            self.organize(bv)
 
     def organize(self, bv):
         def get_filename(keyword, download_script_repo_path):
