@@ -58,7 +58,7 @@ class CustomRecordDownloader:
                 exist_pages[str(i)] = False
             for unit in os.listdir(repo_path):
                 if os.path.isfile(os.path.join(repo_path, unit)) and re.search(bv, unit):
-                    result = re.search(',P\d,', unit)
+                    result = re.search(',P(\d),', unit)
                     if result:
                         exist_pages[result.group(1)] = True
             np = list(map(lambda x: int(x), filter(lambda x: not exist_pages.get(x), exist_pages.keys())))
