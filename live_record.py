@@ -119,7 +119,7 @@ class LiveRecordDownloader:
         cwd = os.getcwd()
         os.chdir(self.start_script_repo_path)
         for info in tqdm(infos):
-            command = r'python3 "{}" --bd --ym --yac --yad --yr --nol --yf -d 1 -p a -y -i {}'.format(
+            command = r'python3 "{}" --bd --ym --yac --yad --yr --nol --yf --ms 3M -d 1 -p a -y -i {}'.format(
                 os.path.join(self.start_script_repo_path, 'start.py'), info.url)
             if not check_for_exists(info, self.repo_path):
                 os.system(command)

@@ -57,9 +57,9 @@ class CustomRecordDownloader:
         os.chdir(self.download_script_repo_path)
         for bv in tqdm(bvs):
             if not check_for_exists(self.repo_path, bv):
-                os.system('python3 "{}" --ym --yac --yad --yf --ar --yda --nbd --nol --in -y -d 3 -p a -i {}'.format(
+                os.system('python3 "{}" --ym --yac --yad --yf --ar --yda --nbd --nol --in --ms 3M -y -d 3 -p a -i {}'.format(
                     os.path.join(self.download_script_repo_path, 'start.py'), bv))
-                os.system('python3 "{}" --ym --yac --yad --yf --ar --yda --nbd --nol --in -y -d 8 -p a -i {}'.format(
+                os.system('python3 "{}" --ym --yac --yad --yf --ar --yda --nbd --nol --in --ms 3M -y -d 8 -p a -i {}'.format(
                     os.path.join(self.download_script_repo_path, 'start.py'), bv))
                 self.organize(bv)
 
