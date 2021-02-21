@@ -51,9 +51,10 @@ class CustomRecordDownloader:
             pages = len(V.get_pages(bv))
             exists = list(filter(lambda x: os.path.isfile(os.path.join(repo_path, x)) and re.search(bv, x),
                                  os.listdir(repo_path)))
-            return pages == len(exists) * 2
+            print(pages,len(exists))
+            return pages * 2 <= len(exists)
 
-        clear_tem_download(os.path.join(self.download_script_repo_path, 'Download'), self.del_)
+        # clear_tem_download(os.path.join(self.download_script_repo_path, 'Download'), self.del_)
         os.chdir(self.download_script_repo_path)
         for bv in tqdm(bvs):
             if not check_for_exists(self.repo_path, bv):

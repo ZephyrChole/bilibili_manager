@@ -115,7 +115,7 @@ class LiveRecordDownloader:
                         return True
             return False
 
-        clear_tem_download(os.path.join(self.start_script_repo_path, 'Download'), self.del_)
+        # clear_tem_download(os.path.join(self.start_script_repo_path, 'Download'), self.del_)
         cwd = os.getcwd()
         os.chdir(self.start_script_repo_path)
         for info in tqdm(infos):

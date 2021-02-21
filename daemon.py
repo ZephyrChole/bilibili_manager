@@ -9,5 +9,11 @@ import time
 import main
 
 while True:
-    main.main()
+    while True:
+        try:
+            main.main()
+            break
+        except Exception as e:
+            print(e)
+            time.sleep(60 * 10)
     time.sleep(24 * 60 * 60)
