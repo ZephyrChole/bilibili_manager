@@ -73,8 +73,10 @@ class CustomRecordDownloader:
             delete_useless_file_after_downloading = '--yad'
             delete_by_product_caption_after_downloading = '--nbd'
             add_avbv2filename = '--in'
+            redownload_after_download = '--yr'
+            use_ffmpeg = '--yf'
             use_aria2c = '--ar'
-            aria2c_speed = '--ms 3M'
+            aria2c_speed = '--ms 3m'
             overwrite_duplicate_files = '-y'
             download_video_method = '-d 3'  # 1.当前弹幕 2.全弹幕 3.视频 4.当前弹幕+视频 5.全弹幕+视频 6.仅字幕 7.仅封面图片 8.仅音频
             download_audio_method = '-d 8'
@@ -82,12 +84,14 @@ class CustomRecordDownloader:
             input_ = '-i {}'.format(bv)
             download_video_parameters = [python_ver_and_script, highest_image_quality, continued_download,
                                          delete_useless_file_after_downloading,
-                                         delete_by_product_caption_after_downloading, add_avbv2filename, use_aria2c,
-                                         aria2c_speed, overwrite_duplicate_files, download_video_method, page, input_]
+                                         delete_by_product_caption_after_downloading, add_avbv2filename,
+                                         redownload_after_download, use_ffmpeg, use_aria2c, aria2c_speed,
+                                         overwrite_duplicate_files, download_video_method, page, input_]
             download_audio_parameters = [python_ver_and_script, highest_image_quality, continued_download,
                                          delete_useless_file_after_downloading,
-                                         delete_by_product_caption_after_downloading, add_avbv2filename, use_aria2c,
-                                         aria2c_speed, overwrite_duplicate_files, download_audio_method, page, input_]
+                                         delete_by_product_caption_after_downloading, add_avbv2filename,
+                                         redownload_after_download, use_ffmpeg, use_aria2c, aria2c_speed,
+                                         overwrite_duplicate_files, download_audio_method, page, input_]
             os.system(' '.join(download_video_parameters))
             os.system(' '.join(download_audio_parameters))
 

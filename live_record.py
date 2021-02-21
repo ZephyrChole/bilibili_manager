@@ -123,13 +123,32 @@ class LiveRecordDownloader:
             logger.info('not exist')
             return False
 
+        def download(download_script_path, url):
+            python_ver_and_script = 'python3 {}'.format(download_script_path)  # python & download script path
+            highest_image_quality = '--ym'
+            continued_download = '--yac'
+            delete_useless_file_after_downloading = '--yad'
+            not_delete_by_product_caption_after_downloading = '--bd'
+            add_avbv2filename = '--in'
+            redownload_after_download = '--yr'
+            use_ffmpeg = '--yf'
+            use_aria2c = '--ar'
+            aria2c_speed = '--ms 3m'
+            overwrite_duplicate_files = '-y'
+            download_video_method = '-d 1'  # 1.视频 2.弹幕 3.视频+弹幕
+            input_ = '-i {}'.format(url)
+            download_video_parameters = [python_ver_and_script, highest_image_quality, continued_download,
+                                         delete_useless_file_after_downloading, redownload_after_download, use_ffmpeg,
+                                         not_delete_by_product_caption_after_downloading, add_avbv2filename, use_aria2c,
+                                         aria2c_speed, overwrite_duplicate_files, download_video_method, input_]
+            os.system(' '.join(download_video_parameters))
+
         # clear_tem_download(os.path.join(self.start_script_repo_path, 'Download'), self.del_, self.logger)
         cwd = os.getcwd()
         os.chdir(self.start_script_repo_path)
         for info in tqdm(infos):
             if not check_for_exists(info, self.repo_path, self.logger):
-                os.system(r'python3 "{}" --bd --ym --yac --yad --yr --nol --yf --ms 3M -d 1 -p a -y -i {}'.format(
-                    os.path.join(self.start_script_repo_path, 'start.py'), info.url))
+                download(os.path.join(self.start_script_repo_path, 'start.py'), info.url)
                 organize(os.path.join(self.start_script_repo_path, 'Download'), info, self.repo_path)
         os.chdir(cwd)
 
