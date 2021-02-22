@@ -38,11 +38,12 @@ class LiveRecordDownloadInfo:
 
 
 class LiveRecordDownloader(RecordDownloader):
-    def __init__(self, live_id, download_script_repo_path, repo_path, logger: logging.Logger):
+    def __init__(self, live_id, download_script_repo_path, repo_path, logger: logging.Logger, comment):
         self.live_id = live_id
         self.download_script_repo_path = download_script_repo_path
         self.repo_path = repo_path
         self.logger = logger
+        logger.info(comment)
         chrome_options = Options()
         chrome_options.add_argument('--headless')
         self.browser = webdriver.Chrome(chrome_options=chrome_options)
@@ -181,7 +182,7 @@ def main():
                                         download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
                                         repo_path=os.path.join(
                                             r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official',
-                                            'live_record'), logger=lrLogger)
+                                            'live_record'), logger=lrLogger, comment='有毒的小蘑菇酱')
     lrDownloader.main()
 
 

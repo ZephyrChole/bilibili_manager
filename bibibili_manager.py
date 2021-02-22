@@ -16,7 +16,7 @@ class BilibiliManager:
     cr_folder = 'custom_record'
     lr_folder = 'live_record'
 
-    def __init__(self, uid, live_id, download_script_repo_path, repo_path, mode):
+    def __init__(self, uid, live_id, download_script_repo_path, repo_path, mode, comment):
         self.mode = mode
         self.repo_path = repo_path
 
@@ -33,10 +33,10 @@ class BilibiliManager:
 
         self.crDownloader = CustomRecordDownloader(uid=uid, download_script_repo_path=download_script_repo_path,
                                                    repo_path=os.path.join(repo_path, self.cr_folder),
-                                                   logger=self.crLogger)
+                                                   logger=self.crLogger, comment=comment)
         self.lrDownloader = LiveRecordDownloader(live_id=live_id, download_script_repo_path=download_script_repo_path,
                                                  repo_path=os.path.join(repo_path, self.lr_folder),
-                                                 logger=self.lrLogger)
+                                                 logger=self.lrLogger, comment=comment)
 
     @staticmethod
     def init_path(path):
@@ -77,11 +77,13 @@ class BilibiliManager:
 def main():
     YDDXMGJ = BilibiliManager(uid=9035182, live_id=3509872,
                               download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
-                              repo_path=r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official', mode=3)
+                              repo_path=r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official', mode=3,
+                              comment='有毒的小蘑菇酱')
     YDDXMGJ.main()
     YYXST = BilibiliManager(uid=358629230, live_id=13328782,
                             download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
-                            repo_path=r'/media/pi/sda1/media/bilibili_record/13328782-圆圆小石头-official', mode=2)
+                            repo_path=r'/media/pi/sda1/media/bilibili_record/13328782-圆圆小石头-official', mode=2,
+                            comment='圆圆小石头')
     YYXST.main()
     os.system('clear')
 

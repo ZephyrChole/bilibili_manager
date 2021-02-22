@@ -17,11 +17,12 @@ from record_download import RecordDownloader
 
 
 class CustomRecordDownloader(RecordDownloader):
-    def __init__(self, uid, download_script_repo_path, repo_path, logger: logging.Logger):
+    def __init__(self, uid, download_script_repo_path, repo_path, logger: logging.Logger, comment):
         self.uid = int(uid) if isinstance(uid, str) else uid
         self.download_script_repo_path = download_script_repo_path
         self.repo_path = repo_path
         self.logger = logger
+        logger.info(comment)
 
     def main(self):
         self.logger.info('uid:{} start to inspect custom records'.format(self.uid))
@@ -136,7 +137,7 @@ def main():
     crDownloader = CustomRecordDownloader(uid=9035182, download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
                                           repo_path=os.path.join(
                                               r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official/',
-                                              'custom_record'), logger=crLogger)
+                                              'custom_record'), logger=crLogger, comment='有毒的小蘑菇酱')
     crDownloader.main()
 
 
