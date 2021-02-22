@@ -21,6 +21,7 @@ class CustomRecordDownloader:
         self.logger = logger
 
     def main(self):
+        self.logger.info('start to inspect custom records')
         bv = self.get_bvs()
         self.start_download(bv)
 

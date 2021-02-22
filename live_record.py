@@ -45,6 +45,7 @@ class LiveRecordDownloader:
         self.browser.minimize_window()
 
     def main(self):
+        self.logger.info('start to inspect live records')
         self.enter_live()
         self.get_record_page()
         download_infos = self.get_urls()
