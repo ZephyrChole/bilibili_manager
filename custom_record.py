@@ -21,7 +21,7 @@ class CustomRecordDownloader:
         self.logger = logger
 
     def main(self):
-        self.logger.info('start to inspect custom records')
+        self.logger.info('uid:{} start to inspect custom records'.format(self.uid))
         bv = self.get_bvs()
         self.start_download(bv)
 
@@ -120,14 +120,17 @@ class CustomRecordDownloader:
 
 
 def main():
-    logger = logging.getLogger('CR')
-    logger.setLevel(logging.INFO)
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    logger.addHandler(console_handler)
-    CRDownloader = CustomRecordDownloader(9035182, r'E:\playground\from github\bili',
-                                          r'I:\media\bilibili_record\3509872-有毒的小蘑菇酱\test_custom', logger)
-    CRDownloader.main()
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+
+    crLogger = logging.getLogger('CR')
+    crLogger.setLevel(logging.INFO)
+    crLogger.addHandler(ch)
+    crDownloader = CustomRecordDownloader(uid=9035182, download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
+                                          repo_path=os.path.join(
+                                              r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official/',
+                                              'custom_record'), logger=crLogger)
+    crDownloader.main()
 
 
 if __name__ == '__main__':

@@ -12,7 +12,9 @@ from live_record import LiveRecordDownloader
 
 
 class BilibiliManager:
-    def __init__(self, uid, live_id, download_script_repo_path, repo_path):
+    def __init__(self, uid, live_id, download_script_repo_path, repo_path, mode):
+        self.mode = mode
+
         ch = logging.StreamHandler()
         ch.setLevel(logging.INFO)
 
@@ -30,15 +32,24 @@ class BilibiliManager:
                                                  repo_path=os.path.join(repo_path, 'live_record'), logger=lrLogger)
 
     def main(self):
-        self.crDownloader.main()
-        self.lrDownloader.main()
+        if self.mode == 1:
+            self.lrDownloader.main()
+        elif self.mode == 2:
+            self.crDownloader.main()
+        elif self.mode == 3:
+            self.crDownloader.main()
+            self.lrDownloader.main()
 
 
 def main():
-    bilibili_manager = BilibiliManager(uid=9035182, live_id=3509872,
-                                       download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
-                                       repo_path=r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official')
-    bilibili_manager.main()
+    YDDXMGJ = BilibiliManager(uid=9035182, live_id=3509872,
+                              download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
+                              repo_path=r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official', mode=3)
+    YDDXMGJ.main()
+    YYXST = BilibiliManager(uid=358629230, live_id=13328782,
+                            download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
+                            repo_path=r'/media/pi/sda1/media/bilibili_record/13328782-圆圆小石头-official', mode=2)
+    YYXST.main()
 
 
 if __name__ == '__main__':

@@ -46,7 +46,7 @@ class LiveRecordDownloader:
         self.browser.minimize_window()
 
     def main(self):
-        self.logger.info('start to inspect live records')
+        self.logger.info('live_id:{} start to inspect live records'.format(self.live_id))
         try:
             self.enter_live()
             self.get_record_page()
@@ -161,14 +161,17 @@ class LiveRecordDownloader:
 
 
 def main():
-    logger = logging.getLogger('LR')
-    logger.setLevel(logging.INFO)
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    logger.addHandler(console_handler)
-    LRDownloader = LiveRecordDownloader('3509872', r'E:\playground\from github\bili',
-                                        r'I:\media\bilibili_record\3509872-有毒的小蘑菇酱\test_record', logger)
-    LRDownloader.main()
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    lrLogger = logging.getLogger('LR')
+    lrLogger.setLevel(logging.INFO)
+    lrLogger.addHandler(ch)
+    lrDownloader = LiveRecordDownloader(live_id=3509872,
+                                        download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
+                                        repo_path=os.path.join(
+                                            r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official',
+                                            'live_record'), logger=lrLogger)
+    lrDownloader.main()
 
 
 if __name__ == '__main__':
