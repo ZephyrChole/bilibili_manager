@@ -6,39 +6,72 @@
 
 import logging
 import os
+from re import findall
 
 from custom_record import CustomRecordDownloader
 from live_record import LiveRecordDownloader
 
 
 class BilibiliManager:
+    cr_folder = 'custom_record'
+    lr_folder = 'live_record'
+
     def __init__(self, uid, live_id, download_script_repo_path, repo_path, mode):
         self.mode = mode
+        self.repo_path = repo_path
 
         ch = logging.StreamHandler()
         ch.setLevel(logging.INFO)
 
-        crLogger = logging.getLogger('CR')
-        crLogger.setLevel(logging.INFO)
-        crLogger.addHandler(ch)
+        self.crLogger = logging.getLogger('CR')
+        self.crLogger.setLevel(logging.INFO)
+        self.crLogger.addHandler(ch)
 
-        lrLogger = logging.getLogger('LR')
-        lrLogger.setLevel(logging.INFO)
-        lrLogger.addHandler(ch)
+        self.lrLogger = logging.getLogger('LR')
+        self.lrLogger.setLevel(logging.INFO)
+        self.lrLogger.addHandler(ch)
 
         self.crDownloader = CustomRecordDownloader(uid=uid, download_script_repo_path=download_script_repo_path,
-                                                   repo_path=os.path.join(repo_path, 'custom_record'), logger=crLogger)
+                                                   repo_path=os.path.join(repo_path, self.cr_folder),
+                                                   logger=self.crLogger)
         self.lrDownloader = LiveRecordDownloader(live_id=live_id, download_script_repo_path=download_script_repo_path,
-                                                 repo_path=os.path.join(repo_path, 'live_record'), logger=lrLogger)
+                                                 repo_path=os.path.join(repo_path, self.lr_folder),
+                                                 logger=self.lrLogger)
+
+    @staticmethod
+    def init_path(path):
+        path_group = findall('/[^/]+', path)
+        try:
+            for i in range(1, len(path_group) + 1):
+                tem_path = ''.join(path_group[0:i])
+                if not os.path.exists(tem_path):
+                    os.mkdir(tem_path)
+            return True
+        except:
+            return False
+
+    def start_lr_main(self):
+        if self.init_path(os.path.join(self.repo_path, self.lr_folder)):
+            self.crLogger.info('custom record path check success')
+            self.lrDownloader.main()
+        else:
+            self.crLogger.info('custom record path check fail')
+
+    def start_cr_main(self):
+        if self.init_path(os.path.join(self.repo_path, self.cr_folder)):
+            self.crLogger.info('live record path check success')
+            self.lrDownloader.main()
+        else:
+            self.crLogger.info('live record path check fail')
 
     def main(self):
         if self.mode == 1:
-            self.lrDownloader.main()
+            self.start_lr_main()
         elif self.mode == 2:
-            self.crDownloader.main()
+            self.start_cr_main()
         elif self.mode == 3:
-            self.crDownloader.main()
-            self.lrDownloader.main()
+            self.start_cr_main()
+            self.start_lr_main()
 
 
 def main():
