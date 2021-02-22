@@ -43,13 +43,14 @@ class LiveRecordDownloader(RecordDownloader):
         self.download_script_repo_path = download_script_repo_path
         self.repo_path = repo_path
         self.logger = logger
-        logger.info(comment)
+        self.comment = comment
         chrome_options = Options()
         chrome_options.add_argument('--headless')
         self.browser = webdriver.Chrome(chrome_options=chrome_options)
         self.browser.minimize_window()
 
     def main(self):
+        self.logger.info(self.comment)
         self.logger.info('live_id:{} start to inspect live records'.format(self.live_id))
         try:
             download_infos = self.get_infos()

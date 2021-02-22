@@ -22,9 +22,10 @@ class CustomRecordDownloader(RecordDownloader):
         self.download_script_repo_path = download_script_repo_path
         self.repo_path = repo_path
         self.logger = logger
-        logger.info(comment)
+        self.comment = comment
 
     def main(self):
+        self.logger.info(self.comment)
         self.logger.info('uid:{} start to inspect custom records'.format(self.uid))
         bv = self.get_infos()
         self.start_download(bv)
