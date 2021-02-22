@@ -57,13 +57,13 @@ class CustomRecordDownloader:
             pages = len(V.get_pages(bv))
             exist_pages = {}
             for i in range(1, pages + 1):
-                exist_pages[str(i)] = False
+                exist_pages[str(i)] = 0
             for unit in os.listdir(repo_path):
                 if os.path.isfile(os.path.join(repo_path, unit)) and re.search(bv, unit):
                     result = re.search(',P(\d+),', unit)
-                    if result:
-                        exist_pages[result.group(1)] = True
-            np = list(map(lambda x: int(x), filter(lambda x: not exist_pages.get(x), exist_pages.keys())))
+                    if result and isinstance(exist_pages.get(result.group(1)), int):
+                        exist_pages[result.group(1)] += 1
+            np = list(map(lambda x: int(x), filter(lambda x: exist_pages.get(x) < 2, exist_pages.keys())))
             if len(np):
                 logger.info('{} got nonexistent_pages,length:{}'.format(bv, np))
             return np
