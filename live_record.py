@@ -34,9 +34,9 @@ class LiveRecordDownloadInfo:
 
 
 class LiveRecordDownloader:
-    def __init__(self, live_id, start_script_repo_path, repo_path, logger: logging.Logger):
+    def __init__(self, live_id, download_script_repo_path, repo_path, logger: logging.Logger):
         self.live_id = live_id
-        self.start_script_repo_path = start_script_repo_path
+        self.start_script_repo_path = download_script_repo_path
         self.repo_path = repo_path
         self.logger = logger
         chrome_options = Options()

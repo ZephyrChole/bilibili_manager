@@ -14,9 +14,9 @@ from tqdm import tqdm
 
 
 class CustomRecordDownloader:
-    def __init__(self, uid, start_script_repo_path, repo_path, logger: logging.Logger):
+    def __init__(self, uid, download_script_repo_path, repo_path, logger: logging.Logger):
         self.uid = int(uid) if isinstance(uid, str) else uid
-        self.download_script_repo_path = start_script_repo_path
+        self.download_script_repo_path = download_script_repo_path
         self.repo_path = repo_path
         self.logger = logger
 
