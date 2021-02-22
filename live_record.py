@@ -118,9 +118,9 @@ class LiveRecordDownloader:
             else:
                 for file in os.listdir(repo_folder_path):
                     if re.search(info.id, file):
-                        logger.info('exists')
+                        logger.info('{} exists'.format(info.id))
                         return True
-            logger.info('not exist')
+            logger.info('{} not exist'.format(info.id))
             return False
 
         def download(download_script_path, url):

@@ -62,7 +62,8 @@ class CustomRecordDownloader:
                     if result:
                         exist_pages[result.group(1)] = True
             np = list(map(lambda x: int(x), filter(lambda x: not exist_pages.get(x), exist_pages.keys())))
-            logger.info('got nonexistent_pages,length:{}'.format(np))
+            if len(np):
+                logger.info('{} got nonexistent_pages,length:{}'.format(bv, np))
             return np
 
         def download(download_script_path, pages, bv):
