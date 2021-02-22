@@ -8,6 +8,7 @@ import logging
 import os
 import re
 
+import timeout_decorator
 from bilibili_api import user
 from bilibili_api import video as V
 from tqdm import tqdm
@@ -67,6 +68,7 @@ class CustomRecordDownloader:
                 logger.info('{} got nonexistent_pages,length:{}'.format(bv, np))
             return np
 
+        @timeout_decorator.timeout(60 * 60)
         def download(download_script_path, pages, bv):
             pages = list(map(lambda x: str(x), pages))
             python_ver_and_script = 'python3 {}'.format(download_script_path)  # python & download script path
@@ -102,8 +104,17 @@ class CustomRecordDownloader:
         for bv in tqdm(bvs):
             nonexistent_pages = get_nonexistent_pages(self.repo_path, bv, self.logger)
             if len(nonexistent_pages):
-                download(os.path.join(self.download_script_repo_path, 'start.py'), nonexistent_pages, bv)
-                self.organize(bv)
+                attempt = 0
+                while attempt <= 3:
+                    try:
+                        download(os.path.join(self.download_script_repo_path, 'start.py'), nonexistent_pages, bv)
+                        self.organize(bv)
+                        break
+                    except timeout_decorator.timeout_decorator.TimeoutError:
+                        attempt += 1
+                        self.logger.info('download timeout,{} attempt'.format(attempt))
+                if attempt > 3:
+                    self.logger.info('download timeout,skipping...')
 
     def organize(self, bv):
         def get_filename(keyword, download_script_repo_path):

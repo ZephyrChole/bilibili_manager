@@ -9,6 +9,7 @@ import logging
 import os
 import re
 
+import timeout_decorator
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.chrome.options import Options
@@ -130,6 +131,7 @@ class LiveRecordDownloader:
             logger.info('{} not exist'.format(info.id))
             return False
 
+        @timeout_decorator.timeout(60 * 60)
         def download(download_script_path, url):
             python_ver_and_script = 'python3 {}'.format(download_script_path)  # python & download script path
             highest_image_quality = '--ym'
@@ -155,8 +157,17 @@ class LiveRecordDownloader:
         os.chdir(self.start_script_repo_path)
         for info in tqdm(infos):
             if not check_for_exists(info, self.repo_path, self.logger):
-                download(os.path.join(self.start_script_repo_path, 'start.py'), info.url)
-                organize(os.path.join(self.start_script_repo_path, 'Download'), info, self.repo_path)
+                attempt = 0
+                while attempt <= 3:
+                    try:
+                        download(os.path.join(self.start_script_repo_path, 'start.py'), info.url)
+                        organize(os.path.join(self.start_script_repo_path, 'Download'), info, self.repo_path)
+                        break
+                    except timeout_decorator.timeout_decorator.TimeoutError:
+                        attempt += 1
+                        self.logger.info('download timeout,{} attempt'.format(attempt))
+                if attempt > 3:
+                    self.logger.info('download timeout,skipping...')
         os.chdir(cwd)
 
 
