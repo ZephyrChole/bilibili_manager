@@ -10,6 +10,7 @@ import os
 import re
 
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 from tqdm import tqdm
@@ -46,11 +47,16 @@ class LiveRecordDownloader:
 
     def main(self):
         self.logger.info('start to inspect live records')
-        self.enter_live()
-        self.get_record_page()
-        download_infos = self.get_urls()
-        self.browser.quit()
-        self.start_download(download_infos)
+        try:
+            self.enter_live()
+            self.get_record_page()
+            download_infos = self.get_urls()
+            self.browser.quit()
+            self.start_download(download_infos)
+        except TimeoutException:
+            self.logger.info("didn't find record page")
+        except WebDriverException:
+            self.logger.info('No internet,skipping...')
 
     @staticmethod
     def copy_(source_path, target_path):
