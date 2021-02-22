@@ -52,17 +52,17 @@ class BilibiliManager:
 
     def start_lr_main(self):
         if self.init_path(os.path.join(self.repo_path, self.lr_folder)):
-            self.lrLogger.info('custom record path check success')
+            self.lrLogger.info('live record path check success')
             self.lrDownloader.main()
         else:
-            self.lrLogger.info('custom record path check fail')
+            self.lrLogger.info('live record path check fail')
 
     def start_cr_main(self):
         if self.init_path(os.path.join(self.repo_path, self.cr_folder)):
-            self.crLogger.info('live record path check success')
+            self.crLogger.info('custom record path check success')
             self.crDownloader.main()
         else:
-            self.crLogger.info('live record path check fail')
+            self.crLogger.info('custom record path check fail')
 
     def main(self):
         if self.mode == 1:
