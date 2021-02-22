@@ -100,24 +100,25 @@ class LiveRecordDownloader:
         self.logger.info('got download_infos,length:{}'.format(len(download_infos)))
         return download_infos
 
-    def start_download(self, infos):
-        def clear_tem_download(download_repo, del_fun, logger):
-            for i in os.listdir(download_repo):
-                del_fun(os.path.join(download_repo, i))
-            logger.info('cleared tem download')
-
+    def organize(self, info):
         def get_filename(repo_path, keyword):
             for i in os.listdir(repo_path):
                 if os.path.isfile(os.path.join(repo_path, i)) and re.search(keyword, i):
                     return i
 
-        def organize(download_path, info, repo_path):
-            file_name = get_filename(download_path, re.search('([^/]+)$', info.url).group(1))
-            repo_folder_path = os.path.join(repo_path, info.get_date())
-            if not os.path.exists(repo_folder_path):
-                os.mkdir(repo_folder_path)
-            self.copy_(os.path.join(download_path, file_name), os.path.join(repo_folder_path, file_name))
-            self.del_(os.path.join(download_path, file_name))
+        download_path = os.path.join(self.start_script_repo_path, 'Download')
+        file_name = get_filename(download_path, re.search('([^/]+)$', info.url).group(1))
+        repo_folder_path = os.path.join(self.repo_path, info.get_date())
+        if not os.path.exists(repo_folder_path):
+            os.mkdir(repo_folder_path)
+        self.copy_(os.path.join(download_path, file_name), os.path.join(repo_folder_path, file_name))
+        self.del_(os.path.join(download_path, file_name))
+
+    def start_download(self, infos):
+        def clear_tem_download(download_repo, del_fun, logger):
+            for i in os.listdir(download_repo):
+                del_fun(os.path.join(download_repo, i))
+            logger.info('cleared tem download')
 
         def check_for_exists(info, repo_path, logger):
             repo_folder_path = os.path.join(repo_path, info.get_date())
@@ -161,7 +162,7 @@ class LiveRecordDownloader:
                 while attempt <= 3:
                     try:
                         download(os.path.join(self.start_script_repo_path, 'start.py'), info.url)
-                        organize(os.path.join(self.start_script_repo_path, 'Download'), info, self.repo_path)
+                        self.organize(info)
                         break
                     except timeout_decorator.timeout_decorator.TimeoutError:
                         attempt += 1
