@@ -20,8 +20,10 @@ class BilibiliManager:
         self.mode = mode
         self.repo_path = repo_path
 
+        formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
         ch = logging.StreamHandler()
         ch.setLevel(logging.INFO)
+        ch.setFormatter(formatter)
 
         self.crLogger = logging.getLogger('CR')
         self.crLogger.setLevel(logging.INFO)
@@ -85,7 +87,7 @@ def main():
                             repo_path=r'/media/pi/sda1/media/bilibili_record/13328782-圆圆小石头-official', mode=2,
                             comment='圆圆小石头')
     YYXST.main()
-    os.system('clear')
+    print('成功！ 等待下一次唤醒...')
 
 
 if __name__ == '__main__':
