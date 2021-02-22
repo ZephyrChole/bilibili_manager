@@ -30,8 +30,8 @@ class BilibiliManager:
                                                  repo_path=os.path.join(repo_path, 'live_record'), logger=lrLogger)
 
     def main(self):
-        self.lrDownloader.main()
         self.crDownloader.main()
+        self.lrDownloader.main()
 
 
 def main():
