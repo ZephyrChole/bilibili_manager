@@ -16,6 +16,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 from tqdm import tqdm
 
+from record_download import RecordDownloader
+
 
 class LiveRecordDownloadInfo:
     def __init__(self, url, date_str):
@@ -35,10 +37,10 @@ class LiveRecordDownloadInfo:
         return '{}{}{}'.format(self.yyyy, self.mm, self.dd)
 
 
-class LiveRecordDownloader:
+class LiveRecordDownloader(RecordDownloader):
     def __init__(self, live_id, download_script_repo_path, repo_path, logger: logging.Logger):
         self.live_id = live_id
-        self.start_script_repo_path = download_script_repo_path
+        self.download_script_repo_path = download_script_repo_path
         self.repo_path = repo_path
         self.logger = logger
         chrome_options = Options()
@@ -49,9 +51,7 @@ class LiveRecordDownloader:
     def main(self):
         self.logger.info('live_id:{} start to inspect live records'.format(self.live_id))
         try:
-            self.enter_live()
-            self.get_record_page()
-            download_infos = self.get_urls()
+            download_infos = self.get_infos()
             self.browser.quit()
             self.start_download(download_infos)
         except TimeoutException:
@@ -59,26 +59,18 @@ class LiveRecordDownloader:
         except WebDriverException:
             self.logger.info('No internet,skipping...')
 
-    @staticmethod
-    def copy_(source_path, target_path):
-        os.system('cp "{}" "{}"'.format(source_path, target_path))
+    def get_infos(self):
+        def enter_live(browser, live_id, logger):
+            logger.info('entered live')
+            browser.get('https://live.bilibili.com/{}'.format(live_id))
 
-    @staticmethod
-    def del_(source_path):
-        os.system('rm "{}"'.format(source_path))
+        def get_record_page(browser, logger):
+            WebDriverWait(browser, 30, 0.2).until(
+                lambda x: x.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative'))
+            record_button = browser.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative')
+            record_button.click()
+            logger.info('got record page')
 
-    def enter_live(self):
-        self.logger.info('entered live')
-        self.browser.get('https://live.bilibili.com/{}'.format(self.live_id))
-
-    def get_record_page(self):
-        WebDriverWait(self.browser, 30, 0.2).until(
-            lambda x: x.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative'))
-        record_button = self.browser.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative')
-        record_button.click()
-        self.logger.info('got record page')
-
-    def get_urls(self):
         def get_url_and_date(browser, count):
             url = browser.find_element_by_css_selector(
                 'div.live-record-card-cntr.card:nth-child({}) a'.format(count)).get_attribute('href')
@@ -86,6 +78,8 @@ class LiveRecordDownloader:
                 'div.live-record-card-cntr.card:nth-child({}) a p:last-child'.format(count)).text
             return url, date
 
+        enter_live(self.browser, self.live_id, self.logger)
+        get_record_page(self.browser, self.logger)
         WebDriverWait(self.browser, 30, 0.2).until(
             lambda x: x.find_element_by_css_selector('div.right-container'))
         download_infos = []
@@ -99,20 +93,6 @@ class LiveRecordDownloader:
                 break
         self.logger.info('got download_infos,length:{}'.format(len(download_infos)))
         return download_infos
-
-    def organize(self, info):
-        def get_filename(repo_path, keyword):
-            for i in os.listdir(repo_path):
-                if os.path.isfile(os.path.join(repo_path, i)) and re.search(keyword, i):
-                    return i
-
-        download_path = os.path.join(self.start_script_repo_path, 'Download')
-        file_name = get_filename(download_path, re.search('([^/]+)$', info.url).group(1))
-        repo_folder_path = os.path.join(self.repo_path, info.get_date())
-        if not os.path.exists(repo_folder_path):
-            os.mkdir(repo_folder_path)
-        self.copy_(os.path.join(download_path, file_name), os.path.join(repo_folder_path, file_name))
-        self.del_(os.path.join(download_path, file_name))
 
     def start_download(self, infos):
         def clear_tem_download(download_repo, del_fun, logger):
@@ -153,16 +133,35 @@ class LiveRecordDownloader:
                                          aria2c_speed, not_overwrite_duplicate_files, download_video_method, input_]
             os.system(' '.join(download_video_parameters))
 
-        # clear_tem_download(os.path.join(self.start_script_repo_path, 'Download'), self.del_, self.logger)
+        def organize(info, start_script_repo_path, repo_path):
+            def copy_(source_path, target_path):
+                os.system('cp "{}" "{}"'.format(source_path, target_path))
+
+            def del_(source_path):
+                os.system('rm "{}"'.format(source_path))
+
+            def get_filename(repo_path, keyword):
+                for i in os.listdir(repo_path):
+                    if os.path.isfile(os.path.join(repo_path, i)) and re.search(keyword, i):
+                        return i
+
+            download_path = os.path.join(start_script_repo_path, 'Download')
+            file_name = get_filename(download_path, re.search('([^/]+)$', info.url).group(1))
+            repo_folder_path = os.path.join(repo_path, info.get_date())
+            if not os.path.exists(repo_folder_path):
+                os.mkdir(repo_folder_path)
+            copy_(os.path.join(download_path, file_name), os.path.join(repo_folder_path, file_name))
+            del_(os.path.join(download_path, file_name))
+
         cwd = os.getcwd()
-        os.chdir(self.start_script_repo_path)
+        os.chdir(self.download_script_repo_path)
         for info in tqdm(infos):
             if not check_for_exists(info, self.repo_path, self.logger):
                 attempt = 0
                 while attempt <= 3:
                     try:
-                        download(os.path.join(self.start_script_repo_path, 'start.py'), info.url)
-                        self.organize(info)
+                        download(os.path.join(self.download_script_repo_path, 'start.py'), info.url)
+                        organize(info, self.download_script_repo_path, self.repo_path)
                         break
                     except timeout_decorator.timeout_decorator.TimeoutError:
                         attempt += 1

@@ -13,8 +13,10 @@ from bilibili_api import user
 from bilibili_api import video as V
 from tqdm import tqdm
 
+from record_download import RecordDownloader
 
-class CustomRecordDownloader:
+
+class CustomRecordDownloader(RecordDownloader):
     def __init__(self, uid, download_script_repo_path, repo_path, logger: logging.Logger):
         self.uid = int(uid) if isinstance(uid, str) else uid
         self.download_script_repo_path = download_script_repo_path
@@ -23,18 +25,10 @@ class CustomRecordDownloader:
 
     def main(self):
         self.logger.info('uid:{} start to inspect custom records'.format(self.uid))
-        bv = self.get_bvs()
+        bv = self.get_infos()
         self.start_download(bv)
 
-    @staticmethod
-    def copy_(source_path, target_path):
-        os.system('cp "{}" "{}"'.format(source_path, target_path))
-
-    @staticmethod
-    def del_(source_path):
-        os.system('rm "{}"'.format(source_path))
-
-    def get_bvs(self):
+    def get_infos(self):
         bvids = []
         page = 1
         while True:
@@ -49,10 +43,6 @@ class CustomRecordDownloader:
         return bvids
 
     def start_download(self, bvs):
-        def clear_tem_download(download_repo, del_fun):
-            for i in os.listdir(download_repo):
-                del_fun(os.path.join(download_repo, i))
-
         def get_nonexistent_pages(repo_path, bv, logger):
             pages = len(V.get_pages(bv))
             exist_pages = {}
@@ -99,6 +89,25 @@ class CustomRecordDownloader:
             os.system(' '.join(download_video_parameters))
             os.system(' '.join(download_audio_parameters))
 
+        def organize(bv, download_script_repo_path, repo_path):
+            def copy_(source_path, target_path):
+                os.system('cp "{}" "{}"'.format(source_path, target_path))
+
+            def del_(source_path):
+                os.system('rm "{}"'.format(source_path))
+
+            def get_filename(keyword, download_script_repo_path):
+                return list(filter(lambda x: re.search(keyword, x),
+                                   os.listdir(os.path.join(download_script_repo_path, 'Download'))))
+
+            file_names = get_filename(bv, download_script_repo_path)
+            for file_name in file_names:
+                file_name = file_name
+                if not os.path.exists(os.path.join(repo_path, file_name)):
+                    copy_(os.path.join(download_script_repo_path, 'Download', file_name),
+                          os.path.join(repo_path, file_name))
+                del_(os.path.join(download_script_repo_path, 'Download', file_name))
+
         # clear_tem_download(os.path.join(self.download_script_repo_path, 'Download'), self.del_)
         os.chdir(self.download_script_repo_path)
         for bv in tqdm(bvs):
@@ -108,26 +117,13 @@ class CustomRecordDownloader:
                 while attempt <= 3:
                     try:
                         download(os.path.join(self.download_script_repo_path, 'start.py'), nonexistent_pages, bv)
-                        self.organize(bv)
+                        organize(bv, self.download_script_repo_path, self.repo_path)
                         break
                     except timeout_decorator.timeout_decorator.TimeoutError:
                         attempt += 1
                         self.logger.info('download timeout,{} attempt'.format(attempt))
                 if attempt > 3:
                     self.logger.info('download timeout,skipping...')
-
-    def organize(self, bv):
-        def get_filename(keyword, download_script_repo_path):
-            return list(filter(lambda x: re.search(keyword, x),
-                               os.listdir(os.path.join(download_script_repo_path, 'Download'))))
-
-        file_names = get_filename(bv, self.download_script_repo_path)
-        for file_name in file_names:
-            file_name = file_name
-            if not os.path.exists(os.path.join(self.repo_path, file_name)):
-                self.copy_(os.path.join(self.download_script_repo_path, 'Download', file_name),
-                           os.path.join(self.repo_path, file_name))
-            self.del_(os.path.join(self.download_script_repo_path, 'Download', file_name))
 
 
 def main():

@@ -83,6 +83,7 @@ def main():
                             download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
                             repo_path=r'/media/pi/sda1/media/bilibili_record/13328782-圆圆小石头-official', mode=2)
     YYXST.main()
+    os.system('clear')
 
 
 if __name__ == '__main__':
