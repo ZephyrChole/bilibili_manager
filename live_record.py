@@ -97,11 +97,6 @@ class LiveRecordDownloader(RecordDownloader):
         return download_infos
 
     def start_download(self, infos):
-        def clear_tem_download(download_repo, del_fun, logger):
-            for i in os.listdir(download_repo):
-                del_fun(os.path.join(download_repo, i))
-            logger.info('cleared tem download')
-
         def check_for_exists(info, repo_path, logger):
             repo_folder_path = os.path.join(repo_path, info.get_date())
             if not os.path.exists(repo_folder_path) or not os.path.isdir(repo_folder_path):
