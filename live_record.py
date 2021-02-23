@@ -85,12 +85,17 @@ class LiveRecordDownloader(RecordDownloader):
         WebDriverWait(self.browser, 30, 0.2).until(
             lambda x: x.find_element_by_css_selector('div.right-container'))
         download_infos = []
-        count = 1
         while True:
+            count = 1
+            while True:
+                try:
+                    url, date = get_url_and_date(self.browser, count)
+                    download_infos.append(LiveRecordDownloadInfo(url, date))
+                    count += 1
+                except:
+                    break
             try:
-                url, date = get_url_and_date(self.browser, count)
-                download_infos.append(LiveRecordDownloadInfo(url, date))
-                count += 1
+                self.browser.find_element_by_css_selector('li.panigation.ts-dot-4.selected+li').click()
             except:
                 break
         self.logger.info('got download_infos,length:{}'.format(len(download_infos)))

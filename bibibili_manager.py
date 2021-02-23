@@ -16,10 +16,11 @@ class BilibiliManager:
     cr_folder = 'custom_record'
     lr_folder = 'live_record'
 
-    def __init__(self, uid, live_id, download_script_repo_path, repo_path, mode, comment):
-        self.mode = mode
+    def __init__(self, uid, live_id, download_script_repo_path, repo_path, comment, live, custom):
         self.repo_path = repo_path
         self.download_script_repo_path = download_script_repo_path
+        self.live = live
+        self.custom = custom
 
         formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
         ch = logging.StreamHandler()
@@ -52,10 +53,10 @@ class BilibiliManager:
             return True
         except:
             return False
-    
+
     def clear_tem_download(self):
-        for i in os.listdir(os.path.join(self.download_script_repo_path,'Download')):
-            ipath = os.path.join(os.path.join(self.download_script_repo_path,'Download',i))
+        for i in os.listdir(os.path.join(self.download_script_repo_path, 'Download')):
+            ipath = os.path.join(os.path.join(self.download_script_repo_path, 'Download', i))
             if os.path.isfile(ipath):
                 os.system('rm "{}"'.format(ipath))
 
@@ -74,31 +75,25 @@ class BilibiliManager:
             self.crLogger.info('custom record path check fail')
 
     def main(self):
-        if self.mode == 1:
-            self.start_lr_main()
-        elif self.mode == 2:
-            self.start_cr_main()
-        elif self.mode == 3:
-            self.start_cr_main()
-            self.start_lr_main()
+        if self.live:
+            self.lrDownloader.main()
+        if self.custom:
+            self.crDownloader.main()
 
 
 def main():
     os.chdir('/home/pi/programs/bilibili_manager')
     download_script_repo_path = r'/media/pi/sda1/media/programs/bili'
-    YDDXMGJ = BilibiliManager(uid=9035182, live_id=3509872,
-                              download_script_repo_path=download_script_repo_path,
-                              repo_path=r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official', mode=3,
-                              comment='有毒的小蘑菇酱')
+    YDDXMGJ = BilibiliManager(uid=9035182, live_id=3509872, download_script_repo_path=download_script_repo_path,
+                              repo_path=r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official', live=True,
+                              custom=True, comment='有毒的小蘑菇酱')
     YDDXMGJ.main()
-    YYXST = BilibiliManager(uid=358629230, live_id=13328782,
-                            download_script_repo_path=download_script_repo_path,
-                            repo_path=r'/media/pi/sda1/media/bilibili_record/13328782-圆圆小石头-official', mode=2,
-                            comment='圆圆小石头')
+    YYXST = BilibiliManager(uid=358629230, live_id=13328782, download_script_repo_path=download_script_repo_path,
+                            repo_path=r'/media/pi/sda1/media/bilibili_record/13328782-圆圆小石头-official', live=False,
+                            custom=True, comment='圆圆小石头')
     YYXST.main()
     print('成功！ 等待下一次唤醒...')
     YDDXMGJ.clear_tem_download()
-    
 
 
 if __name__ == '__main__':
