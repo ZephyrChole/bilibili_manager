@@ -109,9 +109,9 @@ class LiveRecordDownloader(RecordDownloader):
             else:
                 for file in os.listdir(repo_folder_path):
                     if re.search(info.id, file):
-                        logger.info('{} exists'.format(info.id))
+                        logger.debug('{} exists'.format(info.id))
                         return True
-            logger.info('{} not exist'.format(info.id))
+            logger.debug('{} not exist'.format(info.id))
             return False
 
         @timeout_decorator.timeout(60 * 60)

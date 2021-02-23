@@ -19,6 +19,7 @@ class BilibiliManager:
     def __init__(self, uid, live_id, download_script_repo_path, repo_path, mode, comment):
         self.mode = mode
         self.repo_path = repo_path
+        self.download_script_repo_path = download_script_repo_path
 
         formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
         ch = logging.StreamHandler()
@@ -51,6 +52,12 @@ class BilibiliManager:
             return True
         except:
             return False
+    
+    def clear_tem_download(self):
+        for i in os.listdir(os.path.join(self.download_script_repo_path,'Download')):
+            ipath = os.path.join(os.path.join(self.download_script_repo_path,'Download',i))
+            if os.path.isfile(ipath):
+                os.system('rm "{}"'.format(ipath))
 
     def start_lr_main(self):
         if self.init_path(os.path.join(self.repo_path, self.lr_folder)):
@@ -77,17 +84,21 @@ class BilibiliManager:
 
 
 def main():
+    os.chdir('/home/pi/programs/bilibili_manager')
+    download_script_repo_path = r'/media/pi/sda1/media/programs/bili'
     YDDXMGJ = BilibiliManager(uid=9035182, live_id=3509872,
-                              download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
+                              download_script_repo_path=download_script_repo_path,
                               repo_path=r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official', mode=3,
                               comment='有毒的小蘑菇酱')
     YDDXMGJ.main()
     YYXST = BilibiliManager(uid=358629230, live_id=13328782,
-                            download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
+                            download_script_repo_path=download_script_repo_path,
                             repo_path=r'/media/pi/sda1/media/bilibili_record/13328782-圆圆小石头-official', mode=2,
                             comment='圆圆小石头')
     YYXST.main()
     print('成功！ 等待下一次唤醒...')
+    YDDXMGJ.clear_tem_download()
+    
 
 
 if __name__ == '__main__':
