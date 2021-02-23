@@ -22,17 +22,18 @@ class BilibiliManager:
         self.live = live
         self.custom = custom
 
+        level = logging.DEBUG
         formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
         ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
+        ch.setLevel(level)
         ch.setFormatter(formatter)
 
         self.crLogger = logging.getLogger('CR')
-        self.crLogger.setLevel(logging.INFO)
+        self.crLogger.setLevel(level)
         self.crLogger.addHandler(ch)
 
         self.lrLogger = logging.getLogger('LR')
-        self.lrLogger.setLevel(logging.INFO)
+        self.lrLogger.setLevel(level)
         self.lrLogger.addHandler(ch)
 
         self.crDownloader = CustomRecordDownloader(uid=uid, download_script_repo_path=download_script_repo_path,
@@ -84,6 +85,10 @@ class BilibiliManager:
 def main():
     os.chdir('/home/pi/programs/bilibili_manager')
     download_script_repo_path = r'/media/pi/sda1/media/programs/bili'
+    XKXM = BilibiliManager(uid=14387072, live_id=6374209, download_script_repo_path=download_script_repo_path,
+                           repo_path=r'/media/pi/sda1/media/bilibili_record/14387072-小可学妹-official', live=True,
+                           custom=False, comment='小可学妹')
+    XKXM.main()
     YDDXMGJ = BilibiliManager(uid=9035182, live_id=3509872, download_script_repo_path=download_script_repo_path,
                               repo_path=r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official', live=True,
                               custom=True, comment='有毒的小蘑菇酱')

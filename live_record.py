@@ -11,7 +11,6 @@ import re
 
 import timeout_decorator
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 from tqdm import tqdm
@@ -52,14 +51,9 @@ class LiveRecordDownloader(RecordDownloader):
     def main(self):
         self.logger.info(self.comment)
         self.logger.info('live_id:{} start to inspect live records'.format(self.live_id))
-        try:
-            download_infos = self.get_infos()
-            self.browser.quit()
-            self.start_download(download_infos)
-        except TimeoutException:
-            self.logger.info("didn't find record page")
-        except WebDriverException:
-            self.logger.info('No internet,skipping...')
+        download_infos = self.get_infos()
+        self.browser.quit()
+        self.start_download(download_infos)
 
     def get_infos(self):
         def enter_live(browser, live_id, logger):
@@ -67,23 +61,32 @@ class LiveRecordDownloader(RecordDownloader):
             browser.get('https://live.bilibili.com/{}'.format(live_id))
 
         def get_record_page(browser, logger):
-            WebDriverWait(browser, 30, 0.2).until(
+            record_button = WebDriverWait(browser, 30, 0.2).until(
                 lambda x: x.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative'))
-            record_button = browser.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative')
-            record_button.click()
+            try:
+                record_button.click()
+            except:
+                pass
             logger.info('got record page')
 
         def get_url_and_date(browser, count):
-            url = browser.find_element_by_css_selector(
-                'div.live-record-card-cntr.card:nth-child({}) a'.format(count)).get_attribute('href')
-            date = browser.find_element_by_css_selector(
-                'div.live-record-card-cntr.card:nth-child({}) a p:last-child'.format(count)).text
+            url = WebDriverWait(browser, 2, 0.2).until(lambda x: x.find_element_by_css_selector(
+                'div.live-record-card-cntr.card:nth-child({}) a'.format(count))).get_attribute('href')
+            date = WebDriverWait(browser, 2, 0.2).until(lambda x: x.find_element_by_css_selector(
+                'div.live-record-card-cntr.card:nth-child({}) a p:last-child'.format(count))).text
             return url, date
+
+        def forward_page(browser, logger):
+            try:
+                WebDriverWait(browser, 2, 0.2).until(
+                    lambda x: x.find_element_by_css_selector('li.panigation.ts-dot-4.selected+li')).click()
+                logger.debug('page forward')
+                return True
+            except:
+                return False
 
         enter_live(self.browser, self.live_id, self.logger)
         get_record_page(self.browser, self.logger)
-        WebDriverWait(self.browser, 30, 0.2).until(
-            lambda x: x.find_element_by_css_selector('div.right-container'))
         download_infos = []
         while True:
             count = 1
@@ -94,9 +97,7 @@ class LiveRecordDownloader(RecordDownloader):
                     count += 1
                 except:
                     break
-            try:
-                self.browser.find_element_by_css_selector('li.panigation.ts-dot-4.selected+li').click()
-            except:
+            if not forward_page(self.browser, self.logger):
                 break
         self.logger.info('got download_infos,length:{}'.format(len(download_infos)))
         return download_infos
