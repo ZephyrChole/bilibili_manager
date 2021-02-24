@@ -77,9 +77,9 @@ class BilibiliManager:
 
     def main(self):
         if self.live:
-            self.lrDownloader.main()
+            self.start_lr_main()
         if self.custom:
-            self.crDownloader.main()
+            self.start_cr_main()
 
 
 def main():
