@@ -12,7 +12,6 @@ import re
 import timeout_decorator
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.wait import WebDriverWait
 from tqdm import tqdm
 
 from record_download import RecordDownloader
@@ -47,6 +46,7 @@ class LiveRecordDownloader(RecordDownloader):
         chrome_options.add_argument('--headless')
         self.browser = webdriver.Chrome(chrome_options=chrome_options)
         self.browser.minimize_window()
+        self.browser.implicitly_wait(60)
 
     def main(self):
         self.logger.info(self.comment)
@@ -61,8 +61,7 @@ class LiveRecordDownloader(RecordDownloader):
             browser.get('https://live.bilibili.com/{}'.format(live_id))
 
         def get_record_page(browser, logger):
-            record_button = WebDriverWait(browser, 30, 0.2).until(
-                lambda x: x.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative'))
+            record_button = browser.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative')
             try:
                 record_button.click()
             except:
@@ -70,16 +69,16 @@ class LiveRecordDownloader(RecordDownloader):
             logger.info('got record page')
 
         def get_url_and_date(browser, count):
-            url = WebDriverWait(browser, 2, 0.2).until(lambda x: x.find_element_by_css_selector(
-                'div.live-record-card-cntr.card:nth-child({}) a'.format(count))).get_attribute('href')
-            date = WebDriverWait(browser, 2, 0.2).until(lambda x: x.find_element_by_css_selector(
-                'div.live-record-card-cntr.card:nth-child({}) a p:last-child'.format(count))).text
+            url = browser.find_element_by_css_selector(
+                'div.live-record-card-cntr.card:nth-child({}) a'.format(count)).get_attribute('href')
+            date = browser.find_element_by_css_selector(
+                'div.live-record-card-cntr.card:nth-child({}) a p:last-child'.format(count)).text
             return url, date
 
         def forward_page(browser, logger):
             try:
-                WebDriverWait(browser, 2, 0.2).until(
-                    lambda x: x.find_element_by_css_selector('li.panigation.ts-dot-4.selected+li')).click()
+                browser.find_element_by_css_selector('li.panigation.ts-dot-4.selected+li').click()
+                self.browser.implicitly_wait(60)
                 logger.debug('page forward')
                 return True
             except:
