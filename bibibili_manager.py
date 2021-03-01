@@ -31,6 +31,7 @@ class BilibiliManager:
         self.download_script_repo_path = download_script_repo_path
         self.up = BilibiliUp(uid)
         self.repo_path = os.path.join(upper_repo_path, '{}-{}'.format(self.up.uid, self.up.name))
+        self.init_downloader()
 
     def open_live(self):
         self.live = True
