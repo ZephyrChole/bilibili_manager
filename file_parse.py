@@ -68,6 +68,7 @@ class FileParser:
 
 def main():
     fp = FileParser('settings.xls')
+    fp.main()
 
 
 if __name__ == '__main__':
