@@ -107,10 +107,3 @@ class BilibiliManager:
         if self.custom:
             self.start_cr_main()
 
-
-def main():
-    pass
-
-
-if __name__ == '__main__':
-    main()

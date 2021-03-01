@@ -36,7 +36,7 @@ class FileParser:
         return data
 
     def init_settings(self):
-        data = [['uid', 'download_to']]
+        data = [['uid']]
         self.save(self.settings_filepath, data)
 
     def read_in(self):
