@@ -50,6 +50,7 @@ class FileParser:
             for i in range(len(info)):
                 new_info[infos[0][i]] = info[i]
             new_infos.append(new_info)
+        return new_infos
 
     def main(self):
         os.chdir('/home/pi/programs/bilibili_manager')
