@@ -16,9 +16,9 @@ from live_record import LiveRecordDownloader
 
 class BilibiliUp:
     def __init__(self, uid):
-        self.uid = uid
-        self.name = user.get_user_info(uid=uid).get('name')
-        self.live_url = user.get_live_info(uid=uid).get('url')
+        self.uid = int(uid)
+        self.name = user.get_user_info(uid=self.uid).get('name')
+        self.live_url = user.get_live_info(uid=self.uid).get('url')
 
 
 class BilibiliManager:
