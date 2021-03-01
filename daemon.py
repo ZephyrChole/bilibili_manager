@@ -6,12 +6,12 @@ import time
 # @software: PyCharm
 # @file: daemon.py
 # @time: 2/20/2021 1:54 PM
-import bibibili_manager
+import file_parse
 
 while True:
     while True:
         try:
-            bibibili_manager.main()
+            file_parse.main()
             break
         except Exception as e:
             print(e)
