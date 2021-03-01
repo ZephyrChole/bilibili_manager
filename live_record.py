@@ -36,12 +36,12 @@ class LiveRecordDownloadInfo:
 
 
 class LiveRecordDownloader(RecordDownloader):
-    def __init__(self, live_id, download_script_repo_path, repo_path, logger: logging.Logger, comment):
-        self.live_id = live_id
+    def __init__(self, live_url, download_script_repo_path, repo_path, logger: logging.Logger, name):
+        self.live_url = live_url
         self.download_script_repo_path = download_script_repo_path
         self.repo_path = repo_path
         self.logger = logger
-        self.comment = comment
+        self.comment = name
         chrome_options = Options()
         chrome_options.add_argument('--headless')
         self.browser = webdriver.Chrome(chrome_options=chrome_options)
@@ -50,15 +50,15 @@ class LiveRecordDownloader(RecordDownloader):
 
     def main(self):
         self.logger.info(self.comment)
-        self.logger.info('live_id:{} start to inspect live records'.format(self.live_id))
+        self.logger.info('live_url:{} start to inspect live records'.format(self.live_url))
         download_infos = self.get_infos()
         self.browser.quit()
         self.start_download(download_infos)
 
     def get_infos(self):
-        def enter_live(browser, live_id, logger):
+        def enter_live(browser, live_url, logger):
             logger.info('entered live')
-            browser.get('https://live.bilibili.com/{}'.format(live_id))
+            browser.get(live_url)
 
         def get_record_page(browser, logger):
             record_button = browser.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative')
@@ -84,7 +84,7 @@ class LiveRecordDownloader(RecordDownloader):
             except:
                 return False
 
-        enter_live(self.browser, self.live_id, self.logger)
+        enter_live(self.browser, self.live_url, self.logger)
         get_record_page(self.browser, self.logger)
         download_infos = []
         while True:
@@ -179,11 +179,11 @@ def main():
     lrLogger = logging.getLogger('LR')
     lrLogger.setLevel(logging.INFO)
     lrLogger.addHandler(ch)
-    lrDownloader = LiveRecordDownloader(live_id=3509872,
+    lrDownloader = LiveRecordDownloader(live_url=3509872,
                                         download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
                                         repo_path=os.path.join(
                                             r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official',
-                                            'live_record'), logger=lrLogger, comment='有毒的小蘑菇酱')
+                                            'live_record'), logger=lrLogger, name='有毒的小蘑菇酱')
     lrDownloader.main()
 
 

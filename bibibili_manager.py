@@ -8,20 +8,43 @@ import logging
 import os
 from re import findall
 
+from bilibili_api import user
+
 from custom_record import CustomRecordDownloader
 from live_record import LiveRecordDownloader
+
+
+class BilibiliUp:
+    def __init__(self, uid):
+        self.uid = uid
+        self.name = user.get_user_info(uid=uid).get('name')
+        self.live_url = user.get_live_info(uid=uid).get('url')
 
 
 class BilibiliManager:
     cr_folder = 'custom_record'
     lr_folder = 'live_record'
+    live = True
+    custom = True
 
-    def __init__(self, uid, live_id, download_script_repo_path, repo_path, comment, live, custom):
-        self.repo_path = repo_path
+    def __init__(self, download_script_repo_path, uid, upper_repo_path):
         self.download_script_repo_path = download_script_repo_path
-        self.live = live
-        self.custom = custom
+        self.up = BilibiliUp(uid)
+        self.repo_path = os.path.join(upper_repo_path, '{}-{}'.format(self.up.uid, self.up.name))
 
+    def open_live(self):
+        self.live = True
+
+    def close_live(self):
+        self.live = False
+
+    def open_custom(self):
+        self.custom = True
+
+    def close_custom(self):
+        self.custom = False
+
+    def init_downloader(self):
         level = logging.DEBUG
         formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
         ch = logging.StreamHandler()
@@ -36,12 +59,14 @@ class BilibiliManager:
         self.lrLogger.setLevel(level)
         self.lrLogger.addHandler(ch)
 
-        self.crDownloader = CustomRecordDownloader(uid=uid, download_script_repo_path=download_script_repo_path,
-                                                   repo_path=os.path.join(repo_path, self.cr_folder),
-                                                   logger=self.crLogger, comment=comment)
-        self.lrDownloader = LiveRecordDownloader(live_id=live_id, download_script_repo_path=download_script_repo_path,
-                                                 repo_path=os.path.join(repo_path, self.lr_folder),
-                                                 logger=self.lrLogger, comment=comment)
+        self.crDownloader = CustomRecordDownloader(uid=self.up.uid,
+                                                   download_script_repo_path=self.download_script_repo_path,
+                                                   repo_path=os.path.join(self.repo_path, self.cr_folder),
+                                                   logger=self.crLogger, name=self.up.name)
+        self.lrDownloader = LiveRecordDownloader(live_url=self.up.live_url,
+                                                 download_script_repo_path=self.download_script_repo_path,
+                                                 repo_path=os.path.join(self.repo_path, self.lr_folder),
+                                                 logger=self.lrLogger, name=self.up.name)
 
     @staticmethod
     def init_path(path):
@@ -83,22 +108,7 @@ class BilibiliManager:
 
 
 def main():
-    os.chdir('/home/pi/programs/bilibili_manager')
-    download_script_repo_path = r'/media/pi/sda1/media/programs/bili'
-    XKXM = BilibiliManager(uid=14387072, live_id=6374209, download_script_repo_path=download_script_repo_path,
-                           repo_path=r'/media/pi/sda1/media/bilibili_record/14387072-小可学妹-official', live=True,
-                           custom=False, comment='小可学妹')
-    XKXM.main()
-    YDDXMGJ = BilibiliManager(uid=9035182, live_id=3509872, download_script_repo_path=download_script_repo_path,
-                              repo_path=r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official', live=True,
-                              custom=True, comment='有毒的小蘑菇酱')
-    YDDXMGJ.main()
-    YYXST = BilibiliManager(uid=358629230, live_id=13328782, download_script_repo_path=download_script_repo_path,
-                            repo_path=r'/media/pi/sda1/media/bilibili_record/13328782-圆圆小石头-official', live=False,
-                            custom=True, comment='圆圆小石头')
-    YYXST.main()
-    print('成功！ 等待下一次唤醒...')
-    YDDXMGJ.clear_tem_download()
+    pass
 
 
 if __name__ == '__main__':
