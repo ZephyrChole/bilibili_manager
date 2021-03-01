@@ -41,7 +41,7 @@ class LiveRecordDownloader(RecordDownloader):
         self.download_script_repo_path = download_script_repo_path
         self.repo_path = repo_path
         self.logger = logger
-        self.comment = name
+        self.name = name
         chrome_options = Options()
         chrome_options.add_argument('--headless')
         self.browser = webdriver.Chrome(chrome_options=chrome_options)
@@ -49,7 +49,7 @@ class LiveRecordDownloader(RecordDownloader):
         self.browser.implicitly_wait(60)
 
     def main(self):
-        self.logger.info(self.comment)
+        self.logger.info(self.name)
         self.logger.info('live_url:{} start to inspect live records'.format(self.live_url))
         download_infos = self.get_infos()
         self.browser.quit()
