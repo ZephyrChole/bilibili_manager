@@ -24,26 +24,14 @@ class BilibiliUp:
 class BilibiliManager:
     cr_folder = 'custom_record'
     lr_folder = 'live_record'
-    live = True
-    custom = True
 
-    def __init__(self, download_script_repo_path, uid, upper_repo_path):
+    def __init__(self, download_script_repo_path, uid, upper_repo_path, live, custom):
         self.download_script_repo_path = download_script_repo_path
+        self.live = live
+        self.custom = custom
         self.up = BilibiliUp(uid)
         self.repo_path = os.path.join(upper_repo_path, '{}-{}'.format(self.up.uid, self.up.name))
         self.init_downloader()
-
-    def open_live(self):
-        self.live = True
-
-    def close_live(self):
-        self.live = False
-
-    def open_custom(self):
-        self.custom = True
-
-    def close_custom(self):
-        self.custom = False
 
     def init_downloader(self):
         level = logging.DEBUG
@@ -106,4 +94,3 @@ class BilibiliManager:
             self.start_lr_main()
         if self.custom:
             self.start_cr_main()
-

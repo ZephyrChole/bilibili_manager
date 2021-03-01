@@ -36,7 +36,7 @@ class FileParser:
         return data
 
     def init_settings(self):
-        data = [['uid']]
+        data = [['uid', 'live', 'custom']]
         self.save(self.settings_filepath, data)
 
     def read_in(self):
@@ -59,7 +59,7 @@ class FileParser:
             infos = self.info_parse(self.read_in())
             for info in infos:
                 bm = BilibiliManager(download_script_repo_path, info.get('uid'),
-                                     r'/media/pi/sda1/media/bilibili_record')
+                                     r'/media/pi/sda1/media/bilibili_record', info.get('live'), info.get('custom'))
                 bm.main()
                 bm.clear_tem_download()
             print('成功！ 等待下一次唤醒...')
