@@ -17,12 +17,12 @@ from record_download import RecordDownloader
 
 
 class CustomRecordDownloader(RecordDownloader):
-    def __init__(self, uid, download_script_repo_path, repo_path, logger: logging.Logger, name):
-        self.uid = int(uid) if isinstance(uid, str) else uid
+    def __init__(self, download_script_repo_path, repo_path, logger: logging.Logger, up):
         self.download_script_repo_path = download_script_repo_path
         self.repo_path = repo_path
         self.logger = logger
-        self.name = name
+        self.name = up.name
+        self.uid = up.uid
 
     def main(self):
         self.logger.info(self.name)

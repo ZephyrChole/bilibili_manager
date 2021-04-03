@@ -14,8 +14,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from tqdm import tqdm
 
-from record_download import RecordDownloader
-
 
 class LiveRecordDownloadInfo:
     def __init__(self, url, date_str):
@@ -35,27 +33,29 @@ class LiveRecordDownloadInfo:
         return '{}{}{}'.format(self.yyyy, self.mm, self.dd)
 
 
-class LiveRecordDownloader(RecordDownloader):
-    def __init__(self, live_url, download_script_repo_path, repo_path, logger: logging.Logger, name):
-        self.live_url = live_url
+class LiveRecordDownloader:
+    def __init__(self, download_script_repo_path, repo_path, logger: logging.Logger, up):
         self.download_script_repo_path = download_script_repo_path
         self.repo_path = repo_path
         self.logger = logger
-        self.name = name
+        self.name = up.name
+        self.live_url = up.live_url
+        self.browser = self.get_browser()
+
+    def get_browser(self):
         chrome_options = Options()
         chrome_options.add_argument('--headless')
-        self.browser = webdriver.Chrome(chrome_options=chrome_options)
-        self.browser.minimize_window()
-        self.browser.implicitly_wait(60)
+        return webdriver.Chrome(chrome_options=chrome_options)
 
     def main(self):
         self.logger.info(self.name)
         self.logger.info('live_url:{} start to inspect live records'.format(self.live_url))
-        download_infos = self.get_infos()
+        download_infos = self.get_infos(self.logger, self.browser, self.live_url)
         self.browser.quit()
         self.start_download(download_infos)
 
-    def get_infos(self):
+    @staticmethod
+    def get_infos(logger, browser, live_url):
         def enter_live(browser, live_url, logger):
             logger.info('entered live')
             browser.get(live_url)
@@ -64,9 +64,10 @@ class LiveRecordDownloader(RecordDownloader):
             record_button = browser.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative')
             try:
                 record_button.click()
+                logger.info('got record page')
             except:
                 pass
-            logger.info('got record page')
+                logger.warning("can't find record button")
 
         def get_url_and_date(browser, count):
             url = browser.find_element_by_css_selector(
@@ -78,27 +79,27 @@ class LiveRecordDownloader(RecordDownloader):
         def forward_page(browser, logger):
             try:
                 browser.find_element_by_css_selector('li.panigation.ts-dot-4.selected+li').click()
-                self.browser.implicitly_wait(60)
+                browser.implicitly_wait(60)
                 logger.debug('page forward')
                 return True
             except:
                 return False
 
-        enter_live(self.browser, self.live_url, self.logger)
-        get_record_page(self.browser, self.logger)
+        enter_live(browser, live_url, logger)
+        get_record_page(browser, logger)
         download_infos = []
         while True:
             count = 1
             while True:
                 try:
-                    url, date = get_url_and_date(self.browser, count)
+                    url, date = get_url_and_date(browser, count)
                     download_infos.append(LiveRecordDownloadInfo(url, date))
                     count += 1
                 except:
                     break
-            if not forward_page(self.browser, self.logger):
+            if not forward_page(browser, logger):
                 break
-        self.logger.info('got download_infos,length:{}'.format(len(download_infos)))
+        logger.info('got download_infos,length:{}'.format(len(download_infos)))
         return download_infos
 
     def start_download(self, infos):
@@ -171,21 +172,3 @@ class LiveRecordDownloader(RecordDownloader):
                 if attempt > 3:
                     self.logger.info('download timeout,skipping...')
         os.chdir(cwd)
-
-
-def main():
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    lrLogger = logging.getLogger('LR')
-    lrLogger.setLevel(logging.INFO)
-    lrLogger.addHandler(ch)
-    lrDownloader = LiveRecordDownloader(live_url=3509872,
-                                        download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
-                                        repo_path=os.path.join(
-                                            r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official',
-                                            'live_record'), logger=lrLogger, name='有毒的小蘑菇酱')
-    lrDownloader.main()
-
-
-if __name__ == '__main__':
-    main()

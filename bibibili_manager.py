@@ -6,15 +6,14 @@
 
 import logging
 import os
+import time
 from re import findall
-
 from bilibili_api import user
-
 from custom_record import CustomRecordDownloader
 from live_record import LiveRecordDownloader
 
 
-class BilibiliUp:
+class UP:
     def __init__(self, uid):
         self.uid = int(uid)
         self.name = user.get_user_info(uid=self.uid).get('name')
@@ -29,33 +28,31 @@ class BilibiliManager:
         self.download_script_repo_path = download_script_repo_path
         self.live = live
         self.custom = custom
-        self.up = BilibiliUp(uid)
+        self.up = UP(uid)
         self.repo_path = os.path.join(upper_repo_path, '{}-{}'.format(self.up.uid, self.up.name))
         self.init_downloader()
 
-    def init_downloader(self):
-        level = logging.DEBUG
+    @staticmethod
+    def get_logger(level, name):
         formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-        ch = logging.StreamHandler()
-        ch.setLevel(level)
-        ch.setFormatter(formatter)
+        fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())),
+                                 encoding='utf-8')
+        fh.setLevel(level)
+        fh.setFormatter(formatter)
+        logger = logging.getLogger(name)
+        logger.setLevel(level)
+        logger.addHandler(fh)
+        return logger
 
-        self.crLogger = logging.getLogger('CR')
-        self.crLogger.setLevel(level)
-        self.crLogger.addHandler(ch)
-
-        self.lrLogger = logging.getLogger('LR')
-        self.lrLogger.setLevel(level)
-        self.lrLogger.addHandler(ch)
-
-        self.crDownloader = CustomRecordDownloader(uid=self.up.uid,
-                                                   download_script_repo_path=self.download_script_repo_path,
+    def init_downloader(self):
+        self.crLogger = self.get_logger(logging.INFO, 'custom_record')
+        self.lrLogger = self.get_logger(logging.INFO, 'live_record')
+        self.crDownloader = CustomRecordDownloader(download_script_repo_path=self.download_script_repo_path,
                                                    repo_path=os.path.join(self.repo_path, self.cr_folder),
-                                                   logger=self.crLogger, name=self.up.name)
-        self.lrDownloader = LiveRecordDownloader(live_url=self.up.live_url,
-                                                 download_script_repo_path=self.download_script_repo_path,
+                                                   logger=self.crLogger, up=self.up)
+        self.lrDownloader = LiveRecordDownloader(download_script_repo_path=self.download_script_repo_path,
                                                  repo_path=os.path.join(self.repo_path, self.lr_folder),
-                                                 logger=self.lrLogger, name=self.up.name)
+                                                 logger=self.lrLogger, up=self.up)
 
     @staticmethod
     def init_path(path):
