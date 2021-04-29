@@ -42,7 +42,6 @@ class LiveRecordDownloader(RecordDownloader):
         self.logger = logger
         self.name = up.name
         self.live_url = up.live_url
-        self.browser = self.get_browser()
 
     @staticmethod
     def get_browser():
@@ -54,54 +53,62 @@ class LiveRecordDownloader(RecordDownloader):
         self.logger.info(self.name)
         self.logger.info('live_url:{} start to inspect live records'.format(self.live_url))
         download_infos = self.get_infos()
-        self.browser.quit()
         self.start_download(download_infos)
 
     def get_infos(self):
-        def enter_live(browser, live_url, logger):
-            logger.info('entered live')
-            browser.get(live_url)
+        def enter_live():
+            self.logger.info('entered live')
+            browser.get(self.live_url)
+            browser.implicitly_wait(60)
 
-        def get_record_page(browser, logger):
-            record_button = browser.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative')
+        def get_record_page():
             try:
-                record_button.click()
-                logger.info('got record page')
+                browser.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative').click()
+                self.logger.info('got record page')
+                return True
             except:
-                pass
-                logger.warning("can't find record button")
+                self.logger.warning("can't find record button")
+                return False
 
-        def get_url_and_date(browser, count):
+        def get_url_and_date():
             url = browser.find_element_by_css_selector(
                 'div.live-record-card-cntr.card:nth-child({}) a'.format(count)).get_attribute('href')
             date = browser.find_element_by_css_selector(
                 'div.live-record-card-cntr.card:nth-child({}) a p:last-child'.format(count)).text
             return url, date
 
-        def forward_page(browser, logger):
+        def forward_page():
             try:
                 browser.find_element_by_css_selector('li.panigation.ts-dot-4.selected+li').click()
                 browser.implicitly_wait(60)
-                logger.debug('page forward')
+                self.logger.debug('page forward')
                 return True
             except:
                 return False
 
-        enter_live(self.browser, self.live_url, self.logger)
-        get_record_page(self.browser, self.logger)
+        browser = self.get_browser()
+        enter_live()
+        a = 0
+        while a < 3:
+            a += 1
+            if get_record_page():
+                break
+            else:
+                enter_live()
         download_infos = []
         while True:
             count = 1
             while True:
                 try:
-                    url, date = get_url_and_date(self.browser, count)
+                    url, date = get_url_and_date()
                     download_infos.append(LiveRecordDownloadInfo(url, date))
                     count += 1
                 except:
                     break
-            if not forward_page(self.browser, self.logger):
+            if not forward_page():
                 break
         self.logger.info('got download_infos,length:{}'.format(len(download_infos)))
+        browser.quit()
         return download_infos
 
     def start_download(self, infos):
