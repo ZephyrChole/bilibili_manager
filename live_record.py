@@ -16,6 +16,7 @@ from tqdm import tqdm
 
 from record_download import RecordDownloader
 
+
 class LiveRecordDownloadInfo:
     def __init__(self, url, date_str):
         self.url = url
@@ -52,12 +53,11 @@ class LiveRecordDownloader(RecordDownloader):
     def main(self):
         self.logger.info(self.name)
         self.logger.info('live_url:{} start to inspect live records'.format(self.live_url))
-        download_infos = self.get_infos(self.logger, self.browser, self.live_url)
+        download_infos = self.get_infos()
         self.browser.quit()
         self.start_download(download_infos)
 
-    @staticmethod
-    def get_infos(logger, browser, live_url):
+    def get_infos(self):
         def enter_live(browser, live_url, logger):
             logger.info('entered live')
             browser.get(live_url)
@@ -87,21 +87,21 @@ class LiveRecordDownloader(RecordDownloader):
             except:
                 return False
 
-        enter_live(browser, live_url, logger)
-        get_record_page(browser, logger)
+        enter_live(self.browser, self.live_url, self.logger)
+        get_record_page(self.browser, self.logger)
         download_infos = []
         while True:
             count = 1
             while True:
                 try:
-                    url, date = get_url_and_date(browser, count)
+                    url, date = get_url_and_date(self.browser, count)
                     download_infos.append(LiveRecordDownloadInfo(url, date))
                     count += 1
                 except:
                     break
-            if not forward_page(browser, logger):
+            if not forward_page(self.browser, self.logger):
                 break
-        logger.info('got download_infos,length:{}'.format(len(download_infos)))
+        self.logger.info('got download_infos,length:{}'.format(len(download_infos)))
         return download_infos
 
     def start_download(self, infos):
