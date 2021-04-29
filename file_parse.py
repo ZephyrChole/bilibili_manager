@@ -29,8 +29,7 @@ class FileParser:
     def read(file_path):
         file = xlrd.open_workbook(file_path)
         sheet = file.sheet_by_index(0)
-        sheet_info = list(map(lambda x: sheet.row_values(x), sheet.nrows))
-        return sheet_info
+        return [sheet.row_values(r) for r in range(sheet.nrows)]
 
     def init_settings(self):
         data = [['uid', 'live', 'custom']]
