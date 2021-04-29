@@ -45,6 +45,7 @@ class BilibiliManager:
         return logger
 
     def init_downloader(self):
+        self.check_path('./log')
         self.crLogger = self.get_logger(logging.INFO, 'custom_record')
         self.lrLogger = self.get_logger(logging.INFO, 'live_record')
         self.crDownloader = CustomRecordDownloader(download_script_repo_path=self.download_script_repo_path,
