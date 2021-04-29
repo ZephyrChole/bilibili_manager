@@ -6,10 +6,15 @@
 import file_parse
 import time
 
+attempt = 0
 while True:
+    attempt += 1
     try:
         file_parse.main()
         break
     except Exception as e:
         print(e)
+        if attempt > 3:
+            break
         time.sleep(60 * 10)
+print('failed')

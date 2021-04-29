@@ -14,6 +14,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from tqdm import tqdm
 
+from record_download import RecordDownloader
 
 class LiveRecordDownloadInfo:
     def __init__(self, url, date_str):
@@ -33,7 +34,7 @@ class LiveRecordDownloadInfo:
         return '{}{}{}'.format(self.yyyy, self.mm, self.dd)
 
 
-class LiveRecordDownloader:
+class LiveRecordDownloader(RecordDownloader):
     def __init__(self, download_script_repo_path, repo_path, logger: logging.Logger, up):
         self.download_script_repo_path = download_script_repo_path
         self.repo_path = repo_path
@@ -42,7 +43,8 @@ class LiveRecordDownloader:
         self.live_url = up.live_url
         self.browser = self.get_browser()
 
-    def get_browser(self):
+    @staticmethod
+    def get_browser():
         chrome_options = Options()
         chrome_options.add_argument('--headless')
         return webdriver.Chrome(chrome_options=chrome_options)
@@ -52,6 +54,7 @@ class LiveRecordDownloader:
         self.logger.info('live_url:{} start to inspect live records'.format(self.live_url))
         download_infos = self.get_infos(self.logger, self.browser, self.live_url)
         self.browser.quit()
+        self.browser.close()
         self.start_download(download_infos)
 
     @staticmethod

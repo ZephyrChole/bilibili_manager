@@ -19,7 +19,7 @@ class FileParser:
     @staticmethod
     def save(file_path, data):
         file = xlwt.Workbook()
-        sheet = file.add_sheet('Sheet1')
+        sheet = file.add_sheet('BilibiliUP')
         for j in range(len(data)):
             for k in range(len(data[j])):
                 sheet.write(j, k, data[j][k])
@@ -28,38 +28,25 @@ class FileParser:
     @staticmethod
     def read(file_path):
         file = xlrd.open_workbook(file_path)
-        data = []
-        for sheet_count in range(len(file.sheets())):
-            sheet = file.sheet_by_index(sheet_count)
-            sheet_info = [sheet.row_values(i) for i in range(sheet.nrows)]
-            data.append(sheet_info)
-        return data
+        sheet = file.sheet_by_index(0)
+        sheet_info = list(map(lambda x: sheet.row_values(x), sheet.nrows))
+        return sheet_info
 
     def init_settings(self):
         data = [['uid', 'live', 'custom']]
         self.save(self.settings_filepath, data)
 
-    def read_in(self):
-        return self.read(self.settings_filepath)[0]
-
     @staticmethod
     def info_parse(infos):
-        new_infos = []
-        for info in infos[1:]:
-            new_info = {}
-            for i in range(len(info)):
-                new_info[infos[0][i]] = info[i]
-            new_infos.append(new_info)
-        return new_infos
+        return list(map(lambda info: {infos[0][i]: info[i] for i in range(len(info))}, infos[1:]))
 
     def main(self):
-        os.chdir('/home/pi/programs/bilibili_manager')
-        download_script_repo_path = r'/media/pi/sda1/media/programs/bili'
+        download_script_repo_path = '../bili'
         if os.path.exists(self.settings_filepath):
-            infos = self.info_parse(self.read_in())
+            infos = self.info_parse(self.read(self.settings_filepath))
             for info in infos:
-                bm = BilibiliManager(download_script_repo_path, info.get('uid'),
-                                     r'/media/pi/sda1/media/bilibili_record', info.get('live'), info.get('custom'))
+                bm = BilibiliManager(download_script_repo_path, info.get('uid'), '../', info.get('live'),
+                                     info.get('custom'))
                 bm.main()
                 bm.clear_tem_download()
             print('成功！ 等待下一次唤醒...')
