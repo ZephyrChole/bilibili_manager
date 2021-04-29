@@ -54,7 +54,6 @@ class LiveRecordDownloader(RecordDownloader):
         self.logger.info('live_url:{} start to inspect live records'.format(self.live_url))
         download_infos = self.get_infos(self.logger, self.browser, self.live_url)
         self.browser.quit()
-        self.browser.close()
         self.start_download(download_infos)
 
     @staticmethod
