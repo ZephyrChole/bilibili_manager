@@ -54,17 +54,19 @@ class BilibiliManager:
                                                  repo_path=os.path.join(self.repo_path, self.lr_folder),
                                                  logger=self.lrLogger, up=self.up)
 
-    @staticmethod
-    def init_path(path):
-        path_group = findall('/[^/]+', path)
-        try:
-            for i in range(1, len(path_group) + 1):
-                tem_path = ''.join(path_group[0:i])
-                if not os.path.exists(tem_path):
-                    os.mkdir(tem_path)
+    def check_path(self, full_path):
+        if os.path.exists(full_path):
             return True
-        except:
-            return False
+        else:
+            path, name = os.path.split(full_path)
+            if self.check_path(path):
+                try:
+                    os.mkdir(full_path)
+                    return True
+                except:
+                    return False
+            else:
+                return False
 
     def clear_tem_download(self):
         for i in os.listdir(os.path.join(self.download_script_repo_path, 'Download')):
@@ -73,14 +75,14 @@ class BilibiliManager:
                 os.system('rm "{}"'.format(ipath))
 
     def start_lr_main(self):
-        if self.init_path(os.path.join(self.repo_path, self.lr_folder)):
+        if self.check_path(os.path.join(self.repo_path, self.lr_folder)):
             self.lrLogger.info('live record path check success')
             self.lrDownloader.main()
         else:
             self.lrLogger.info('live record path check fail')
 
     def start_cr_main(self):
-        if self.init_path(os.path.join(self.repo_path, self.cr_folder)):
+        if self.check_path(os.path.join(self.repo_path, self.cr_folder)):
             self.crLogger.info('custom record path check success')
             self.crDownloader.main()
         else:
