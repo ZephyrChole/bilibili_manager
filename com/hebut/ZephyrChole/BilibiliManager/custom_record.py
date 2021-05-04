@@ -59,9 +59,10 @@ class CustomRecordDownloader(RecordDownloader):
             return np
 
         @func_set_timeout(60 * 60)
-        def download(download_script_path, pages, bv):
+        def download(download_script_repo_path, pages, bv):
             pages = list(map(lambda x: str(x), pages))
-            python_ver_and_script = 'python3 {}'.format(download_script_path)  # python & download script path
+            python_ver_and_script = 'python3 {}'.format(
+                os.path.join(download_script_repo_path, 'start.py'))  # python & download script path
             highest_image_quality = '--ym'
             continued_download = '--yac'
             delete_useless_file_after_downloading = '--yad'
@@ -114,7 +115,7 @@ class CustomRecordDownloader(RecordDownloader):
                 attempt = 0
                 while attempt <= 3:
                     try:
-                        download(os.path.join(self.download_script_repo_path, 'start.py'), nonexistent_pages, bv)
+                        download(self.download_script_repo_path, nonexistent_pages, bv)
                         organize(bv, self.download_script_repo_path, self.repo_path)
                         break
                     except FunctionTimedOut:

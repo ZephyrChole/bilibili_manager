@@ -7,15 +7,15 @@
 import os
 import xlrd
 import xlwt
-
+from com.hebut.ZephyrChole.BilibiliManager.public import get_abs
 from com.hebut.ZephyrChole.BilibiliManager.download import Downloader
 
 
 class FileParser:
     def __init__(self, download_script_repo_path, settings_filepath, upper_repo_path):
-        self.download_script_repo_path = download_script_repo_path
-        self.settings_filepath = settings_filepath
-        self.upper_repo_path = upper_repo_path
+        self.download_script_repo_path = get_abs(download_script_repo_path)
+        self.settings_filepath = get_abs(settings_filepath)
+        self.upper_repo_path = get_abs(upper_repo_path)
 
     @staticmethod
     def save(file_path, data):

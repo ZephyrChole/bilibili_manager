@@ -165,15 +165,12 @@ class LiveRecordDownloader(RecordDownloader):
             copy_(os.path.join(download_path, file_name), os.path.join(repo_folder_path, file_name))
             del_(os.path.join(download_path, file_name))
 
-        cwd = os.getcwd()
-        os.chdir(self.download_script_repo_path)
         for info in tqdm(infos):
             if not check_for_exists(info, self.repo_path, self.logger):
                 attempt = 0
                 while attempt <= 3:
                     try:
-                        download(os.path.join(self.download_script_repo_path, '../../../../main.py'), info.url)
-                        os.chdir(cwd)
+                        download(os.path.join(self.download_script_repo_path, 'start.py'), info.url)
                         organize(info, self.download_script_repo_path, self.repo_path)
                         break
                     except FunctionTimedOut:
