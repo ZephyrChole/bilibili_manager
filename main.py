@@ -10,7 +10,7 @@ attempt = 0
 while True:
     attempt += 1
     try:
-        fp = FileParser('settings.xls', 'bili', '/media/pi/sda1/media/bilibili_record')
+        fp = FileParser('./bili', './setting.xls', '/media/pi/sda1/media/bilibili_record')
         fp.main()
         break
     except Exception as e:
