@@ -8,13 +8,13 @@
 import logging
 import os
 import re
-
-import timeout_decorator
+from func_timeout import func_set_timeout
+from func_timeout.exceptions import FunctionTimedOut
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from tqdm import tqdm
 
-from public import RecordDownloader
+from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader
 
 
 class LiveRecordDownloadInfo:
@@ -124,7 +124,7 @@ class LiveRecordDownloader(RecordDownloader):
             logger.debug('{} not exist'.format(info.id))
             return False
 
-        @timeout_decorator.timeout(60 * 60)
+        @func_set_timeout(60 * 60)
         def download(download_script_path, url):
             python_ver_and_script = 'python3 {}'.format(download_script_path)  # python & download script path
             highest_image_quality = '--ym'
@@ -172,12 +172,12 @@ class LiveRecordDownloader(RecordDownloader):
                 attempt = 0
                 while attempt <= 3:
                     try:
-                        download(os.path.join(self.download_script_repo_path, 'main.py'), info.url)
+                        download(os.path.join(self.download_script_repo_path, '../../../../main.py'), info.url)
+                        os.chdir(cwd)
                         organize(info, self.download_script_repo_path, self.repo_path)
                         break
-                    except timeout_decorator.timeout_decorator.TimeoutError:
+                    except FunctionTimedOut:
                         attempt += 1
                         self.logger.info('download timeout,{} attempt'.format(attempt))
                 if attempt > 3:
                     self.logger.info('download timeout,skipping...')
-        os.chdir(cwd)

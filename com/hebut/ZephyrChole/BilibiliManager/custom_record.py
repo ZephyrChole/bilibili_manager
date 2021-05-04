@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-#
-
-import logging
 # Author:Jiawei Feng
 # @software: PyCharm
 # @file: custom_record.py
 # @time: 2/20/2021 12:58 PM
 import os
 import re
-
-import timeout_decorator
+import logging
+from func_timeout import func_set_timeout
+from func_timeout.exceptions import FunctionTimedOut
 from bilibili_api import user
 from bilibili_api import video as V
 from tqdm import tqdm
-
-from public import RecordDownloader
+from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader
 
 
 class CustomRecordDownloader(RecordDownloader):
@@ -60,7 +58,7 @@ class CustomRecordDownloader(RecordDownloader):
                 logger.info('{} got nonexistent_pages,length:{}'.format(bv, np))
             return np
 
-        @timeout_decorator.timeout(60 * 60)
+        @func_set_timeout(60 * 60)
         def download(download_script_path, pages, bv):
             pages = list(map(lambda x: str(x), pages))
             python_ver_and_script = 'python3 {}'.format(download_script_path)  # python & download script path
@@ -110,37 +108,17 @@ class CustomRecordDownloader(RecordDownloader):
                           os.path.join(repo_path, file_name))
                 del_(os.path.join(download_script_repo_path, 'Download', file_name))
 
-        # clear_tem_download(os.path.join(self.download_script_repo_path, 'Download'), self.del_)
-        os.chdir(self.download_script_repo_path)
         for bv in tqdm(bvs):
             nonexistent_pages = get_nonexistent_pages(self.repo_path, bv, self.logger)
             if len(nonexistent_pages):
                 attempt = 0
                 while attempt <= 3:
                     try:
-                        download(os.path.join(self.download_script_repo_path, 'main.py'), nonexistent_pages, bv)
+                        download(os.path.join(self.download_script_repo_path, 'start.py'), nonexistent_pages, bv)
                         organize(bv, self.download_script_repo_path, self.repo_path)
                         break
-                    except timeout_decorator.timeout_decorator.TimeoutError:
+                    except FunctionTimedOut:
                         attempt += 1
                         self.logger.info('download timeout,{} attempt'.format(attempt))
                 if attempt > 3:
                     self.logger.info('download timeout,skipping...')
-
-
-def main():
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-
-    crLogger = logging.getLogger('CR')
-    crLogger.setLevel(logging.INFO)
-    crLogger.addHandler(ch)
-    crDownloader = CustomRecordDownloader(uid=9035182, download_script_repo_path=r'/media/pi/sda1/media/programs/bili',
-                                          repo_path=os.path.join(
-                                              r'/media/pi/sda1/media/bilibili_record/3509872-有毒的小蘑菇酱-official/',
-                                              'custom_record'), logger=crLogger, name='有毒的小蘑菇酱')
-    crDownloader.main()
-
-
-if __name__ == '__main__':
-    main()

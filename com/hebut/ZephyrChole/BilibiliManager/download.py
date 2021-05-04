@@ -4,13 +4,13 @@
 # @file: download.py
 # @time: 2/20/2021 1:00 PM
 
-import logging
 import os
 import time
-from re import findall
+import logging
 from bilibili_api import user
-from custom_record import CustomRecordDownloader
-from live_record import LiveRecordDownloader
+from com.hebut.ZephyrChole.BilibiliManager.custom_record import CustomRecordDownloader
+from com.hebut.ZephyrChole.BilibiliManager.live_record import LiveRecordDownloader
+from com.hebut.ZephyrChole.BilibiliManager.public import check_path
 
 
 class UP:
@@ -24,7 +24,7 @@ class Downloader:
     cr_folder = 'custom_record'
     lr_folder = 'live_record'
 
-    def __init__(self, download_script_repo_path,upper_repo_path ,uid , live, custom):
+    def __init__(self, download_script_repo_path, upper_repo_path, uid, live, custom):
         self.download_script_repo_path = download_script_repo_path
         self.live = live
         self.custom = custom
@@ -45,7 +45,7 @@ class Downloader:
         return logger
 
     def init_downloader(self):
-        self.check_path('./log')
+        check_path('./log')
         self.crLogger = self.get_logger(logging.INFO, 'custom_record')
         self.lrLogger = self.get_logger(logging.INFO, 'live_record')
         self.crDownloader = CustomRecordDownloader(download_script_repo_path=self.download_script_repo_path,
@@ -55,20 +55,6 @@ class Downloader:
                                                  repo_path=os.path.join(self.repo_path, self.lr_folder),
                                                  logger=self.lrLogger, up=self.up)
 
-    def check_path(self, full_path):
-        if os.path.exists(full_path):
-            return True
-        else:
-            path, name = os.path.split(full_path)
-            if self.check_path(path):
-                try:
-                    os.mkdir(full_path)
-                    return True
-                except:
-                    return False
-            else:
-                return False
-
     def clear_tem_download(self):
         for i in os.listdir(os.path.join(self.download_script_repo_path, 'Download')):
             ipath = os.path.join(os.path.join(self.download_script_repo_path, 'Download', i))
@@ -76,14 +62,14 @@ class Downloader:
                 os.system('rm "{}"'.format(ipath))
 
     def start_lr_main(self):
-        if self.check_path(os.path.join(self.repo_path, self.lr_folder)):
+        if check_path(os.path.join(self.repo_path, self.lr_folder)):
             self.lrLogger.info('live record path check success')
             self.lrDownloader.main()
         else:
             self.lrLogger.info('live record path check fail')
 
     def start_cr_main(self):
-        if self.check_path(os.path.join(self.repo_path, self.cr_folder)):
+        if check_path(os.path.join(self.repo_path, self.cr_folder)):
             self.crLogger.info('custom record path check success')
             self.crDownloader.main()
         else:

@@ -4,8 +4,23 @@
 # @software: PyCharm
 # @file: public.py
 # @time: 2/22/2021 9:36 PM
-
+import os
 from abc import ABCMeta, abstractmethod
+
+
+def check_path(dir_path):
+    if os.path.exists(dir_path):
+        return True
+    else:
+        path, name = os.path.split(dir_path)
+        if check_path(path):
+            try:
+                os.mkdir(dir_path)
+                return True
+            except:
+                return False
+        else:
+            return False
 
 
 class RecordDownloader(metaclass=ABCMeta):

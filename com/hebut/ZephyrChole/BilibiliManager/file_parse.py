@@ -8,7 +8,7 @@ import os
 import xlrd
 import xlwt
 
-from download import Downloader
+from com.hebut.ZephyrChole.BilibiliManager.download import Downloader
 
 
 class FileParser:
@@ -44,10 +44,10 @@ class FileParser:
         if os.path.exists(self.settings_filepath):
             infos = self.info_parse(self.read(self.settings_filepath))
             for info in infos:
-                bm = Downloader(self.download_script_repo_path, self.upper_repo_path, info.get('uid'), info.get('live'),
-                                info.get('custom'))
-                bm.main()
-                bm.clear_tem_download()
+                downloader = Downloader(self.download_script_repo_path, self.upper_repo_path, info.get('uid'),
+                                        info.get('live'), info.get('custom'))
+                downloader.main()
+                downloader.clear_tem_download()
             print('成功！ 等待下一次唤醒...')
         else:
             self.init_settings()
