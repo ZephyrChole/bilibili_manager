@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-#
 # Author:Jiawei Feng
 # @software: PyCharm
-# @file: bibibili_manager.py
+# @file: download.py
 # @time: 2/20/2021 1:00 PM
 
 import logging
@@ -20,11 +20,11 @@ class UP:
         self.live_url = user.get_live_info(uid=self.uid).get('url')
 
 
-class BilibiliManager:
+class Downloader:
     cr_folder = 'custom_record'
     lr_folder = 'live_record'
 
-    def __init__(self, download_script_repo_path, uid, upper_repo_path, live, custom):
+    def __init__(self, download_script_repo_path,upper_repo_path ,uid , live, custom):
         self.download_script_repo_path = download_script_repo_path
         self.live = live
         self.custom = custom

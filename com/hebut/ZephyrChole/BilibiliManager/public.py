@@ -2,7 +2,7 @@
 
 # Author:Jiawei Feng
 # @software: PyCharm
-# @file: record_download.py
+# @file: public.py
 # @time: 2/22/2021 9:36 PM
 
 from abc import ABCMeta, abstractmethod

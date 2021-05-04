@@ -5,16 +5,17 @@
 # @file: file_parse.py
 # @time: 3/1/2021 6:38 PM
 import os
-
 import xlrd
 import xlwt
 
-from bibibili_manager import BilibiliManager
+from download import Downloader
 
 
 class FileParser:
-    def __init__(self, settings_filepath):
+    def __init__(self, download_script_repo_path, settings_filepath, upper_repo_path):
+        self.download_script_repo_path = download_script_repo_path
         self.settings_filepath = settings_filepath
+        self.upper_repo_path = upper_repo_path
 
     @staticmethod
     def save(file_path, data):
@@ -40,23 +41,13 @@ class FileParser:
         return list(map(lambda info: {infos[0][i]: info[i] for i in range(len(info))}, infos[1:]))
 
     def main(self):
-        download_script_repo_path = '../bili'
         if os.path.exists(self.settings_filepath):
             infos = self.info_parse(self.read(self.settings_filepath))
             for info in infos:
-                bm = BilibiliManager(download_script_repo_path, info.get('uid'), '../', info.get('live'),
-                                     info.get('custom'))
+                bm = Downloader(self.download_script_repo_path, self.upper_repo_path, info.get('uid'), info.get('live'),
+                                info.get('custom'))
                 bm.main()
                 bm.clear_tem_download()
             print('成功！ 等待下一次唤醒...')
         else:
             self.init_settings()
-
-
-def main():
-    fp = FileParser('settings.xls')
-    fp.main()
-
-
-if __name__ == '__main__':
-    main()
