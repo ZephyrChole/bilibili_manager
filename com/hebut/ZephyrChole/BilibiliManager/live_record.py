@@ -125,8 +125,10 @@ class LiveRecordDownloader(RecordDownloader):
             return False
 
         @func_set_timeout(60 * 60)
-        def download(download_script_path, url):
-            python_ver_and_script = 'python3 {}'.format(download_script_path)  # python & download script path
+        def download():
+            cwd = os.getcwd()
+            os.chdir(self.download_script_repo_path)
+            python_ver_and_script = 'python3 {}'.format(os.path.join(self.download_script_repo_path, 'start.py'))  # python & download script path
             highest_image_quality = '--ym'
             continued_download = '--yac'
             delete_useless_file_after_downloading = '--yad'
@@ -144,6 +146,7 @@ class LiveRecordDownloader(RecordDownloader):
                                          not_delete_by_product_caption_after_downloading, add_avbv2filename, use_aria2c,
                                          aria2c_speed, not_overwrite_duplicate_files, download_video_method, input_]
             os.system(' '.join(download_video_parameters))
+            os.chdir(cwd)
 
         def organize(info, start_script_repo_path, repo_path):
             def copy_(source_path, target_path):
@@ -170,7 +173,7 @@ class LiveRecordDownloader(RecordDownloader):
                 attempt = 0
                 while attempt <= 3:
                     try:
-                        download(os.path.join(self.download_script_repo_path, 'start.py'), info.url)
+                        download(self.download_script_repo_path, info.url)
                         organize(info, self.download_script_repo_path, self.repo_path)
                         break
                     except FunctionTimedOut:
