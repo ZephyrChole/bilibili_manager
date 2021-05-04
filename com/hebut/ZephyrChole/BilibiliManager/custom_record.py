@@ -59,12 +59,11 @@ class CustomRecordDownloader(RecordDownloader):
             return np
 
         @func_set_timeout(60 * 60)
-        def download(download_script_repo_path, pages, bv):
+        def download():
             cwd = os.getcwd()
             os.chdir(self.download_script_repo_path)
-            pages = list(map(lambda x: str(x), pages))
-            python_ver_and_script = 'python3 {}'.format(
-                os.path.join(download_script_repo_path, 'start.py'))  # python & download script path
+            pages = list(map(lambda x: str(x), nonexistent_pages))
+            python_ver_and_script = f'python3 {os.path.join(self.download_script_repo_path, "start.py")}'  # python & download script path
             highest_image_quality = '--ym'
             continued_download = '--yac'
             delete_useless_file_after_downloading = '--yad'
@@ -77,40 +76,25 @@ class CustomRecordDownloader(RecordDownloader):
             not_overwrite_duplicate_files = '-n'
             download_video_method = '-d 3'  # 1.当前弹幕 2.全弹幕 3.视频 4.当前弹幕+视频 5.全弹幕+视频 6.仅字幕 7.仅封面图片 8.仅音频
             download_audio_method = '-d 8'
-            page = '-p {}'.format(','.join(pages))
-            input_ = '-i {}'.format(bv)
+            page = f'-p {",".join(pages)}'
+            input_ = f'-i {bv}'
+            target_dir = f'-o {self.repo_path}'
+            not_show_in_explorer = '--nol'  # only valid on windows system.
             download_video_parameters = [python_ver_and_script, highest_image_quality, continued_download,
                                          delete_useless_file_after_downloading,
                                          delete_by_product_caption_after_downloading, add_avbv2filename,
                                          redownload_after_download, use_ffmpeg, use_aria2c, aria2c_speed,
-                                         not_overwrite_duplicate_files, download_video_method, page, input_]
+                                         not_overwrite_duplicate_files, download_video_method, page, input_, target_dir,
+                                         not_show_in_explorer]
             download_audio_parameters = [python_ver_and_script, highest_image_quality, continued_download,
                                          delete_useless_file_after_downloading,
                                          delete_by_product_caption_after_downloading, add_avbv2filename,
                                          redownload_after_download, use_ffmpeg, use_aria2c, aria2c_speed,
-                                         not_overwrite_duplicate_files, download_audio_method, page, input_]
+                                         not_overwrite_duplicate_files, download_audio_method, page, input_, target_dir,
+                                         not_show_in_explorer]
             os.system(' '.join(download_video_parameters))
             os.system(' '.join(download_audio_parameters))
             os.chdir(cwd)
-
-        def organize(bv, download_script_repo_path, repo_path):
-            def copy_(source_path, target_path):
-                os.system('cp "{}" "{}"'.format(source_path, target_path))
-
-            def del_(source_path):
-                os.system('rm "{}"'.format(source_path))
-
-            def get_filename(keyword, download_script_repo_path):
-                return list(filter(lambda x: re.search(keyword, x),
-                                   os.listdir(os.path.join(download_script_repo_path, 'Download'))))
-
-            file_names = get_filename(bv, download_script_repo_path)
-            for file_name in file_names:
-                file_name = file_name
-                if not os.path.exists(os.path.join(repo_path, file_name)):
-                    copy_(os.path.join(download_script_repo_path, 'Download', file_name),
-                          os.path.join(repo_path, file_name))
-                del_(os.path.join(download_script_repo_path, 'Download', file_name))
 
         for bv in tqdm(bvs):
             nonexistent_pages = get_nonexistent_pages(self.repo_path, bv, self.logger)
@@ -118,8 +102,7 @@ class CustomRecordDownloader(RecordDownloader):
                 attempt = 0
                 while attempt <= 3:
                     try:
-                        download(self.download_script_repo_path, nonexistent_pages, bv)
-                        organize(bv, self.download_script_repo_path, self.repo_path)
+                        download()
                         break
                     except FunctionTimedOut:
                         attempt += 1

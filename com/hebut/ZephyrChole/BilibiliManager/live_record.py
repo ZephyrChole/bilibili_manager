@@ -128,7 +128,7 @@ class LiveRecordDownloader(RecordDownloader):
         def download():
             cwd = os.getcwd()
             os.chdir(self.download_script_repo_path)
-            python_ver_and_script = 'python3 {}'.format(os.path.join(self.download_script_repo_path, 'start.py'))  # python & download script path
+            python_ver_and_script = f'python3 {os.path.join(self.download_script_repo_path, "start.py")}'  # python & download script path
             highest_image_quality = '--ym'
             continued_download = '--yac'
             delete_useless_file_after_downloading = '--yad'
@@ -140,41 +140,23 @@ class LiveRecordDownloader(RecordDownloader):
             aria2c_speed = '--ms 3m'
             not_overwrite_duplicate_files = '-n'
             download_video_method = '-d 1'  # 1.视频 2.弹幕 3.视频+弹幕
-            input_ = '-i {}'.format(url)
+            input_ = f'-i {info.url}'
+            target_dir = f'-o {self.repo_path}'
+            not_show_in_explorer = '--nol'  # only valid on windows system.
             download_video_parameters = [python_ver_and_script, highest_image_quality, continued_download,
                                          delete_useless_file_after_downloading, redownload_after_download, use_ffmpeg,
                                          not_delete_by_product_caption_after_downloading, add_avbv2filename, use_aria2c,
-                                         aria2c_speed, not_overwrite_duplicate_files, download_video_method, input_]
+                                         aria2c_speed, not_overwrite_duplicate_files, download_video_method, input_,
+                                         target_dir, not_show_in_explorer]
             os.system(' '.join(download_video_parameters))
             os.chdir(cwd)
-
-        def organize(info, start_script_repo_path, repo_path):
-            def copy_(source_path, target_path):
-                os.system('cp "{}" "{}"'.format(source_path, target_path))
-
-            def del_(source_path):
-                os.system('rm "{}"'.format(source_path))
-
-            def get_filename(repo_path, keyword):
-                for i in os.listdir(repo_path):
-                    if os.path.isfile(os.path.join(repo_path, i)) and re.search(keyword, i):
-                        return i
-
-            download_path = os.path.join(start_script_repo_path, 'Download')
-            file_name = get_filename(download_path, re.search('([^/]+)$', info.url).group(1))
-            repo_folder_path = os.path.join(repo_path, info.get_date())
-            if not os.path.exists(repo_folder_path):
-                os.mkdir(repo_folder_path)
-            copy_(os.path.join(download_path, file_name), os.path.join(repo_folder_path, file_name))
-            del_(os.path.join(download_path, file_name))
 
         for info in tqdm(infos):
             if not check_for_exists(info, self.repo_path, self.logger):
                 attempt = 0
                 while attempt <= 3:
                     try:
-                        download(self.download_script_repo_path, info.url)
-                        organize(info, self.download_script_repo_path, self.repo_path)
+                        download()
                         break
                     except FunctionTimedOut:
                         attempt += 1
