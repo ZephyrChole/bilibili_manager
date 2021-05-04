@@ -60,6 +60,8 @@ class CustomRecordDownloader(RecordDownloader):
 
         @func_set_timeout(60 * 60)
         def download(download_script_repo_path, pages, bv):
+            cwd = os.getcwd()
+            os.chdir(self.download_script_repo_path)
             pages = list(map(lambda x: str(x), pages))
             python_ver_and_script = 'python3 {}'.format(
                 os.path.join(download_script_repo_path, 'start.py'))  # python & download script path
@@ -89,6 +91,7 @@ class CustomRecordDownloader(RecordDownloader):
                                          not_overwrite_duplicate_files, download_audio_method, page, input_]
             os.system(' '.join(download_video_parameters))
             os.system(' '.join(download_audio_parameters))
+            os.chdir(cwd)
 
         def organize(bv, download_script_repo_path, repo_path):
             def copy_(source_path, target_path):
