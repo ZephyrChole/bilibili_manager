@@ -1,3 +1,4 @@
 /log/
 setting.xls
-__pycache/
+__pycache__/
+nohup.out
