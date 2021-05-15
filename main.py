@@ -16,6 +16,6 @@ while True:
     except Exception as e:
         print(e)
         if attempt > 3:
+            print('failed')
             break
         time.sleep(60 * 10)
-print('failed')

@@ -13,10 +13,10 @@ def get_abs(path):
 
 
 def check_path(dir_path):
-    if os.path.exists(dir_path):
+    if os.path.exists(dir_path) and os.path.isdir(dir_path):
         return True
     else:
-        path, name = os.path.split(dir_path)
+        path = os.path.split(dir_path)[0]
         if check_path(path):
             try:
                 os.mkdir(dir_path)

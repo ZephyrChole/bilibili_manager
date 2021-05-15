@@ -24,12 +24,12 @@ class Downloader:
     cr_folder = 'custom_record'
     lr_folder = 'live_record'
 
-    def __init__(self, download_script_repo_path, upper_repo_path, uid, live, custom):
-        self.download_script_repo_path = download_script_repo_path
+    def __init__(self, download_script_repo, upper_repo, uid, live, custom):
+        self.download_script_repo = download_script_repo
         self.live = live
         self.custom = custom
         self.up = UP(uid)
-        self.repo_path = os.path.join(upper_repo_path, '{}-{}'.format(self.up.uid, self.up.name))
+        self.repo = os.path.join(upper_repo, '{}-{}'.format(self.up.uid, self.up.name))
         self.init_downloader()
 
     @staticmethod
@@ -48,28 +48,22 @@ class Downloader:
         check_path('./log')
         self.crLogger = self.get_logger(logging.INFO, 'custom_record')
         self.lrLogger = self.get_logger(logging.INFO, 'live_record')
-        self.crDownloader = CustomRecordDownloader(download_script_repo_path=self.download_script_repo_path,
-                                                   repo_path=os.path.join(self.repo_path, self.cr_folder),
+        self.crDownloader = CustomRecordDownloader(download_script_repo=self.download_script_repo,
+                                                   repo=os.path.join(self.repo, self.cr_folder),
                                                    logger=self.crLogger, up=self.up)
-        self.lrDownloader = LiveRecordDownloader(download_script_repo_path=self.download_script_repo_path,
-                                                 repo_path=os.path.join(self.repo_path, self.lr_folder),
+        self.lrDownloader = LiveRecordDownloader(download_script_repo=self.download_script_repo,
+                                                 repo=os.path.join(self.repo, self.lr_folder),
                                                  logger=self.lrLogger, up=self.up)
 
-    def clear_tem_download(self):
-        for i in os.listdir(os.path.join(self.download_script_repo_path, 'Download')):
-            ipath = os.path.join(os.path.join(self.download_script_repo_path, 'Download', i))
-            if os.path.isfile(ipath):
-                os.system('rm "{}"'.format(ipath))
-
     def start_lr_main(self):
-        if check_path(os.path.join(self.repo_path, self.lr_folder)):
+        if check_path(os.path.join(self.repo, self.lr_folder)):
             self.lrLogger.info('live record path check success')
             self.lrDownloader.main()
         else:
             self.lrLogger.info('live record path check fail')
 
     def start_cr_main(self):
-        if check_path(os.path.join(self.repo_path, self.cr_folder)):
+        if check_path(os.path.join(self.repo, self.cr_folder)):
             self.crLogger.info('custom record path check success')
             self.crDownloader.main()
         else:

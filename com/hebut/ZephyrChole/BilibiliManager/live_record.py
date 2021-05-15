@@ -12,9 +12,8 @@ from func_timeout import func_set_timeout
 from func_timeout.exceptions import FunctionTimedOut
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from tqdm import tqdm
 
-from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader
+from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check_path
 
 
 class LiveRecordDownloadInfo:
@@ -36,9 +35,9 @@ class LiveRecordDownloadInfo:
 
 
 class LiveRecordDownloader(RecordDownloader):
-    def __init__(self, download_script_repo_path, repo_path, logger: logging.Logger, up):
-        self.download_script_repo_path = download_script_repo_path
-        self.repo_path = repo_path
+    def __init__(self, download_script_repo, repo, logger: logging.Logger, up):
+        self.download_script_repo = download_script_repo
+        self.repo = repo
         self.logger = logger
         self.name = up.name
         self.live_url = up.live_url
@@ -53,7 +52,7 @@ class LiveRecordDownloader(RecordDownloader):
         self.logger.info(self.name)
         self.logger.info('live_url:{} start to inspect live records'.format(self.live_url))
         download_infos = self.get_infos()
-        self.start_download(download_infos)
+        self.start_download(iter(download_infos))
 
     def get_infos(self):
         def enter_live():
@@ -112,54 +111,68 @@ class LiveRecordDownloader(RecordDownloader):
         return download_infos
 
     def start_download(self, infos):
-        def check_for_exists(info, repo_path, logger):
-            repo_folder_path = os.path.join(repo_path, info.get_date())
-            if not os.path.exists(repo_folder_path) or not os.path.isdir(repo_folder_path):
-                return False
+        try:
+            info = next(infos)
+            repo_with_date = os.path.join(self.repo, info.get_date())
+            if not self.check_for_exists(self.logger, info, repo_with_date):
+                self.download_loop(info.url, repo_with_date)
+            self.start_download(infos)
+        except StopIteration:
+            pass
+
+    def download_loop(self, url, repo_with_date, attempt=0):
+        try:
+            self.download(self.download_script_repo, url, repo_with_date)
+            return True
+        except FunctionTimedOut:
+            if attempt <= 3:
+                self.logger.info('download timeout,{} attempt'.format(attempt))
+                return self.download_loop(url, repo_with_date, attempt + 1)
             else:
-                for file in os.listdir(repo_folder_path):
-                    if re.search(info.id, file):
-                        logger.debug('{} exists'.format(info.id))
-                        return True
+                self.logger.info('download timeout,skipping...')
+                return False
+
+    def check_for_exists(self, logger, info, repo_with_date):
+        if check_path(repo_with_date):
+            return self.check_loop(logger, info, iter(os.listdir(repo_with_date)))
+        else:
+            return False
+
+    def check_loop(self, logger, info, files):
+        try:
+            file = next(files)
+            if re.search(info.id, file):
+                logger.debug('{} exists'.format(info.id))
+                return True
+            else:
+                return self.check_loop(logger, info, files)
+        except StopIteration:
             logger.debug('{} not exist'.format(info.id))
             return False
 
-        @func_set_timeout(60 * 60)
-        def download():
-            cwd = os.getcwd()
-            os.chdir(self.download_script_repo_path)
-            python_ver_and_script = f'python3 {os.path.join(self.download_script_repo_path, "start.py")}'  # python & download script path
-            highest_image_quality = '--ym'
-            continued_download = '--yac'
-            delete_useless_file_after_downloading = '--yad'
-            not_delete_by_product_caption_after_downloading = '--bd'
-            add_avbv2filename = '--in'
-            redownload_after_download = '--yr'
-            use_ffmpeg = '--yf'
-            use_aria2c = '--ar'
-            aria2c_speed = '--ms 3m'
-            not_overwrite_duplicate_files = '-n'
-            download_video_method = '-d 1'  # 1.视频 2.弹幕 3.视频+弹幕
-            input_ = f'-i {info.url}'
-            target_dir = f'-o {self.repo_path}'
-            not_show_in_explorer = '--nol'  # only valid on windows system.
-            download_video_parameters = [python_ver_and_script, highest_image_quality, continued_download,
-                                         delete_useless_file_after_downloading, redownload_after_download, use_ffmpeg,
-                                         not_delete_by_product_caption_after_downloading, add_avbv2filename, use_aria2c,
-                                         aria2c_speed, not_overwrite_duplicate_files, download_video_method, input_,
-                                         target_dir, not_show_in_explorer]
-            os.system(' '.join(download_video_parameters))
-            os.chdir(cwd)
-
-        for info in tqdm(infos):
-            if not check_for_exists(info, self.repo_path, self.logger):
-                attempt = 0
-                while attempt <= 3:
-                    try:
-                        download()
-                        break
-                    except FunctionTimedOut:
-                        attempt += 1
-                        self.logger.info('download timeout,{} attempt'.format(attempt))
-                if attempt > 3:
-                    self.logger.info('download timeout,skipping...')
+    @func_set_timeout(60 * 60)
+    def download(self, download_script_repo, url, tar_dir):
+        cwd = os.getcwd()
+        os.chdir(download_script_repo)
+        python_ver_and_script = f'python3 {os.path.join(download_script_repo, "start.py")}'  # python & download script path
+        highest_image_quality = '--ym'
+        continued_download = '--yac'
+        delete_useless_file_after_downloading = '--yad'
+        not_delete_by_product_caption_after_downloading = '--bd'
+        add_avbv2filename = '--in'
+        redownload_after_download = '--yr'
+        use_ffmpeg = '--yf'
+        use_aria2c = '--ar'
+        aria2c_speed = '--ms 3m'
+        not_overwrite_duplicate_files = '-n'
+        download_video_method = '-d 1'  # 1.视频 2.弹幕 3.视频+弹幕
+        input_ = f'-i {url}'
+        target_dir = f'-o {tar_dir}'
+        not_show_in_explorer = '--nol'  # only valid on windows system.
+        download_video_parameters = [python_ver_and_script, highest_image_quality, continued_download,
+                                     delete_useless_file_after_downloading, redownload_after_download, use_ffmpeg,
+                                     not_delete_by_product_caption_after_downloading, add_avbv2filename, use_aria2c,
+                                     aria2c_speed, not_overwrite_duplicate_files, download_video_method, input_,
+                                     target_dir, not_show_in_explorer]
+        os.system(' '.join(download_video_parameters))
+        os.chdir(cwd)
