@@ -7,6 +7,9 @@
 import os
 import time
 import logging
+import xlrd
+import xlwt
+from com.hebut.ZephyrChole.BilibiliManager.public import get_abs
 from bilibili_api import user
 from com.hebut.ZephyrChole.BilibiliManager.custom_record import CustomRecordDownloader
 from com.hebut.ZephyrChole.BilibiliManager.live_record import LiveRecordDownloader
@@ -20,7 +23,7 @@ class UP:
         self.live_url = user.get_live_info(uid=self.uid).get('url')
 
 
-class Downloader:
+class Task:
     cr_folder = 'custom_record'
     lr_folder = 'live_record'
 
@@ -30,47 +33,65 @@ class Downloader:
         self.custom = custom
         self.up = UP(uid)
         self.repo = os.path.join(upper_repo, '{}-{}'.format(self.up.uid, self.up.name))
-        self.init_downloader()
-
-    @staticmethod
-    def get_logger(level, name):
-        formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-        fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())),
-                                 encoding='utf-8')
-        fh.setLevel(level)
-        fh.setFormatter(formatter)
-        logger = logging.getLogger(name)
-        logger.setLevel(level)
-        logger.addHandler(fh)
-        return logger
-
-    def init_downloader(self):
-        check_path('./log')
-        self.crLogger = self.get_logger(logging.INFO, 'custom_record')
-        self.lrLogger = self.get_logger(logging.INFO, 'live_record')
-        self.crDownloader = CustomRecordDownloader(download_script_repo=self.download_script_repo,
-                                                   repo=os.path.join(self.repo, self.cr_folder),
-                                                   logger=self.crLogger, up=self.up)
-        self.lrDownloader = LiveRecordDownloader(download_script_repo=self.download_script_repo,
-                                                 repo=os.path.join(self.repo, self.lr_folder),
-                                                 logger=self.lrLogger, up=self.up)
-
-    def start_lr_main(self):
-        if check_path(os.path.join(self.repo, self.lr_folder)):
-            self.lrLogger.info('live record path check success')
-            self.lrDownloader.main()
-        else:
-            self.lrLogger.info('live record path check fail')
-
-    def start_cr_main(self):
-        if check_path(os.path.join(self.repo, self.cr_folder)):
-            self.crLogger.info('custom record path check success')
-            self.crDownloader.main()
-        else:
-            self.crLogger.info('custom record path check fail')
 
     def main(self):
+        check_path('./log')
         if self.live:
-            self.start_lr_main()
+            task = CustomRecordDownloader(download_script_repo=self.download_script_repo,
+                                       repo=os.path.join(self.repo, self.lr_folder),
+                                       up=self.up)
+            self.start_task(task, self.lr_folder)
+
         if self.custom:
-            self.start_cr_main()
+            task = LiveRecordDownloader(download_script_repo=self.download_script_repo,
+                                     repo=os.path.join(self.repo, self.cr_folder),
+                                     up=self.up)
+            self.start_task(task, self.cr_folder)
+
+    def start_task(self, task, folder):
+        if check_path(os.path.join(self.repo, folder)):
+            task.logger.info(f'{folder} path check success')
+            task.main()
+        else:
+            task.logger.info(f'{folder} path check fail')
+
+
+class Downloader:
+    def __init__(self, download_script_repo, settings, upper_repo):
+        self.download_script_repo = get_abs(download_script_repo)
+        self.settings = get_abs(settings)
+        self.upper_repo = get_abs(upper_repo)
+
+    @staticmethod
+    def save(file_path, data):
+        file = xlwt.Workbook()
+        sheet = file.add_sheet('BilibiliUP')
+        for j in range(len(data)):
+            for k in range(len(data[j])):
+                sheet.write(j, k, data[j][k])
+        file.save(file_path)
+
+    @staticmethod
+    def read(file_path):
+        file = xlrd.open_workbook(file_path)
+        sheet = file.sheet_by_index(0)
+        return [sheet.row_values(r) for r in range(sheet.nrows)]
+
+    def init_settings(self):
+        data = [['uid', 'live', 'custom']]
+        self.save(self.settings, data)
+
+    @staticmethod
+    def info_parse(infos):
+        return list(map(lambda info: {infos[0][i]: info[i] for i in range(len(info))}, infos[1:]))
+
+    def main(self):
+        if os.path.exists(self.settings):
+            infos = self.info_parse(self.read(self.settings))
+            for info in infos:
+                task = Task(self.download_script_repo, self.upper_repo, info.get('uid'),
+                                  info.get('live'), info.get('custom'))
+                task.main()
+            print('成功！ 等待下一次唤醒...')
+        else:
+            self.init_settings()

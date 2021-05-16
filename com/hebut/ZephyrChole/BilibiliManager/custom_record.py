@@ -10,27 +10,26 @@ from func_timeout import func_set_timeout
 from func_timeout.exceptions import FunctionTimedOut
 from bilibili_api import user
 from bilibili_api import video as V
-from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader
+from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, get_file_logger
 
 
 class CustomRecordDownloader(RecordDownloader):
-    def __init__(self, download_script_repo, repo, logger: logging.Logger, up):
+    def __init__(self, download_script_repo, repo, up):
         self.download_script_repo = download_script_repo
         self.repo = repo
-        self.logger = logger
-        self.name = up.name
-        self.uid = up.uid
+        self.up = up
+        self.logger = get_file_logger(logging.DEBUG, f'cr up:{self.up.uid}-{self.up.name}')
 
     def main(self):
-        self.logger.info(self.name)
-        self.logger.info('uid:{} start to inspect custom records'.format(self.uid))
+        self.logger.info(self.up.name)
+        self.logger.info('uid:{} start to inspect custom records'.format(self.up.uid))
         bv = self.get_infos()
         self.start_download(bv)
 
     def get_infos(self, bvids=None, page=1):
         if bvids is None:
             bvids = []
-        vlist = user.get_videos_raw(uid=self.uid, pn=page).get('list').get('vlist')
+        vlist = user.get_videos_raw(uid=self.up.uid, pn=page).get('list').get('vlist')
         if len(vlist):
             bvids.extend([video.get('bvid') for video in vlist])
             page += 1

@@ -5,6 +5,8 @@
 # @file: public.py
 # @time: 2/22/2021 9:36 PM
 import os
+import time
+import logging
 from abc import ABCMeta, abstractmethod
 
 
@@ -25,6 +27,18 @@ def check_path(dir_path):
                 return False
         else:
             return False
+
+
+def get_file_logger(level, name):
+    formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
+    fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())),
+                             encoding='utf-8')
+    fh.setLevel(level)
+    fh.setFormatter(formatter)
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(fh)
+    return logger
 
 
 class RecordDownloader(metaclass=ABCMeta):

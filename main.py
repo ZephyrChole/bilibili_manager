@@ -3,15 +3,15 @@
 # @software: PyCharm
 # @file: daemon.py
 # @time: 2/20/2021 1:54 PM
-from com.hebut.ZephyrChole.BilibiliManager.file_parse import FileParser
+from com.hebut.ZephyrChole.BilibiliManager.download import Downloader
 import time
 
 attempt = 0
 while True:
     attempt += 1
     try:
-        fp = FileParser('./bili', './setting.xls', '/media/pi/sda1/media/bilibili_record')
-        fp.main()
+        downloader = Downloader('./bili', './setting.xls', '/media/pi/sda1/media/bilibili_record')
+        downloader.main()
         break
     except Exception as e:
         print(e)

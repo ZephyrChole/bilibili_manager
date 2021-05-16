@@ -13,7 +13,7 @@ from func_timeout.exceptions import FunctionTimedOut
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check_path
+from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check_path, get_file_logger
 
 
 class LiveRecordDownloadInfo:
@@ -35,12 +35,11 @@ class LiveRecordDownloadInfo:
 
 
 class LiveRecordDownloader(RecordDownloader):
-    def __init__(self, download_script_repo, repo, logger: logging.Logger, up):
+    def __init__(self, download_script_repo, repo, up):
         self.download_script_repo = download_script_repo
         self.repo = repo
-        self.logger = logger
-        self.name = up.name
-        self.live_url = up.live_url
+        self.up = up
+        self.logger = get_file_logger(logging.DEBUG, f'lr up:{self.up.uid}-{self.up.name}')
 
     @staticmethod
     def get_browser():
@@ -49,15 +48,15 @@ class LiveRecordDownloader(RecordDownloader):
         return webdriver.Chrome(chrome_options=chrome_options)
 
     def main(self):
-        self.logger.info(self.name)
-        self.logger.info('live_url:{} start to inspect live records'.format(self.live_url))
+        self.logger.info(self.up.name)
+        self.logger.info('live_url:{} start to inspect live records'.format(self.up.live_url))
         download_infos = self.get_infos()
         self.start_download(iter(download_infos))
 
     def get_infos(self):
         def enter_live():
             self.logger.info('entered live')
-            browser.get(self.live_url)
+            browser.get(self.up.live_url)
             browser.implicitly_wait(60)
 
         def get_record_page():
