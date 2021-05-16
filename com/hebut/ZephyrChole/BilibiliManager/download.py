@@ -34,17 +34,17 @@ class Task:
 
     def main(self):
         check_path('./log')
-        if self.live:
-            task = CustomRecordDownloader(download_script_repo=self.download_script_repo,
-                                          repo=os.path.join(self.repo, self.lr_folder),
-                                          up=self.up)
-            self.start_task(task, self.lr_folder)
-
         if self.custom:
-            task = LiveRecordDownloader(download_script_repo=self.download_script_repo,
-                                        repo=os.path.join(self.repo, self.cr_folder),
-                                        up=self.up)
+            task = CustomRecordDownloader(download_script_repo=self.download_script_repo,
+                                          repo=os.path.join(self.repo, self.cr_folder),
+                                          up=self.up)
             self.start_task(task, self.cr_folder)
+
+        if self.live:
+            task = LiveRecordDownloader(download_script_repo=self.download_script_repo,
+                                        repo=os.path.join(self.repo, self.lr_folder),
+                                        up=self.up)
+            self.start_task(task, self.lr_folder)
 
     def start_task(self, task, folder):
         if check_path(os.path.join(self.repo, folder)):
