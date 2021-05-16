@@ -38,14 +38,14 @@ class Task:
         check_path('./log')
         if self.live:
             task = CustomRecordDownloader(download_script_repo=self.download_script_repo,
-                                       repo=os.path.join(self.repo, self.lr_folder),
-                                       up=self.up)
+                                          repo=os.path.join(self.repo, self.lr_folder),
+                                          up=self.up)
             self.start_task(task, self.lr_folder)
 
         if self.custom:
             task = LiveRecordDownloader(download_script_repo=self.download_script_repo,
-                                     repo=os.path.join(self.repo, self.cr_folder),
-                                     up=self.up)
+                                        repo=os.path.join(self.repo, self.cr_folder),
+                                        up=self.up)
             self.start_task(task, self.cr_folder)
 
     def start_task(self, task, folder):
@@ -62,14 +62,20 @@ class Downloader:
         self.settings = get_abs(settings)
         self.upper_repo = get_abs(upper_repo)
 
+    def main(self):
+        if os.path.exists(self.settings):
+            infos = self.info_parse(self.read(self.settings))
+            for info in infos:
+                task = Task(self.download_script_repo, self.upper_repo, info.get('uid'),
+                            info.get('live'), info.get('custom'))
+                task.main()
+            print('成功！ 等待下一次唤醒...')
+        else:
+            self.init_settings()
+
     @staticmethod
-    def save(file_path, data):
-        file = xlwt.Workbook()
-        sheet = file.add_sheet('BilibiliUP')
-        for j in range(len(data)):
-            for k in range(len(data[j])):
-                sheet.write(j, k, data[j][k])
-        file.save(file_path)
+    def info_parse(infos):
+        return list(map(lambda info: {infos[0][i]: info[i] for i in range(len(info))}, infos[1:]))
 
     @staticmethod
     def read(file_path):
@@ -82,16 +88,10 @@ class Downloader:
         self.save(self.settings, data)
 
     @staticmethod
-    def info_parse(infos):
-        return list(map(lambda info: {infos[0][i]: info[i] for i in range(len(info))}, infos[1:]))
-
-    def main(self):
-        if os.path.exists(self.settings):
-            infos = self.info_parse(self.read(self.settings))
-            for info in infos:
-                task = Task(self.download_script_repo, self.upper_repo, info.get('uid'),
-                                  info.get('live'), info.get('custom'))
-                task.main()
-            print('成功！ 等待下一次唤醒...')
-        else:
-            self.init_settings()
+    def save(file_path, data):
+        file = xlwt.Workbook()
+        sheet = file.add_sheet('BilibiliUP')
+        for j in range(len(data)):
+            for k in range(len(data[j])):
+                sheet.write(j, k, data[j][k])
+        file.save(file_path)
