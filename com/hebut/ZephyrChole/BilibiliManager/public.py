@@ -8,7 +8,8 @@ import os
 import time
 import logging
 from abc import ABCMeta, abstractmethod
-
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 def get_abs(path):
     return path if os.path.isabs(path) else os.path.abspath(path)
@@ -39,6 +40,12 @@ def get_file_logger(level, name):
     logger.setLevel(level)
     logger.addHandler(fh)
     return logger
+
+
+def get_headless_browser():
+    chrome_options = Options()
+    chrome_options.add_argument('--headless')
+    return webdriver.Chrome(chrome_options=chrome_options)
 
 
 class RecordDownloader(metaclass=ABCMeta):

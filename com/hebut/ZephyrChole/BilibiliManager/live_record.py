@@ -10,10 +10,9 @@ import os
 import re
 from func_timeout import func_set_timeout
 from func_timeout.exceptions import FunctionTimedOut
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 
-from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check_path, get_file_logger
+from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check_path, get_file_logger, \
+    get_headless_browser
 
 
 class LiveRecordDownloadInfo:
@@ -40,12 +39,6 @@ class LiveRecordDownloader(RecordDownloader):
         self.repo = repo
         self.up = up
         self.logger = get_file_logger(logging.DEBUG, f'lr up:{self.up.uid}-{self.up.name}')
-
-    @staticmethod
-    def get_browser():
-        chrome_options = Options()
-        chrome_options.add_argument('--headless')
-        return webdriver.Chrome(chrome_options=chrome_options)
 
     def main(self):
         self.logger.info(self.up.name)
@@ -84,7 +77,7 @@ class LiveRecordDownloader(RecordDownloader):
             except:
                 return False
 
-        browser = self.get_browser()
+        browser = get_headless_browser()
         enter_live()
         a = 0
         while a < 3:
@@ -139,7 +132,6 @@ class LiveRecordDownloader(RecordDownloader):
             for file in os.listdir(repo_with_date):
                 if re.search(info.id, file):
                     if re.search('_', file):
-                        self.del_tem(repo_with_date, info.id)
                         exists = False
                         break
                     else:
