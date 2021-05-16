@@ -5,8 +5,6 @@
 # @time: 2/20/2021 1:00 PM
 
 import os
-import time
-import logging
 import xlrd
 import xlwt
 from com.hebut.ZephyrChole.BilibiliManager.public import get_abs
