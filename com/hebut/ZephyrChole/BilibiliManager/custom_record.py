@@ -51,16 +51,6 @@ class CustomRecordDownloader(RecordDownloader):
         except StopIteration:
             pass
 
-    def download_loop(self, bv, nonexistent_pages, attempt=0):
-        try:
-            self.download(bv, nonexistent_pages)
-        except FunctionTimedOut:
-            if attempt > 3:
-                self.logger.info('download timeout,skipping...')
-            else:
-                self.logger.info('download timeout,{} attempt'.format(attempt))
-                self.download_loop(bv, nonexistent_pages, attempt + 1)
-
     def get_nonexistent_pages(self, repo, bv, logger):
         pages = len(V.get_pages(bv))
         exist_pages = {}
@@ -75,6 +65,16 @@ class CustomRecordDownloader(RecordDownloader):
         if len(np):
             logger.info('{} got nonexistent_pages,length:{}'.format(bv, np))
         return np
+
+    def download_loop(self, bv, nonexistent_pages, attempt=0):
+        try:
+            self.download(bv, nonexistent_pages)
+        except FunctionTimedOut:
+            if attempt > 3:
+                self.logger.info('download timeout,skipping...')
+            else:
+                self.logger.info('download timeout,{} attempt'.format(attempt))
+                self.download_loop(bv, nonexistent_pages, attempt + 1)
 
     @func_set_timeout(60 * 60)
     def download(self, bv, nonexistent_pages):

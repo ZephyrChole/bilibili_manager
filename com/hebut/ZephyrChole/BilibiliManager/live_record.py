@@ -132,22 +132,29 @@ class LiveRecordDownloader(RecordDownloader):
                 return False
 
     def check_for_exists(self, logger, info, repo_with_date):
-        if check_path(repo_with_date):
-            return self.check_loop(logger, info, iter(os.listdir(repo_with_date)))
+        if not check_path(repo_with_date):
+            return True
         else:
-            return False
-
-    def check_loop(self, logger, info, files):
-        try:
-            file = next(files)
-            if re.search(info.id, file):
+            exists = False
+            for file in os.listdir(repo_with_date):
+                if re.search(info.id, file):
+                    if re.search('_', file):
+                        self.del_tem(repo_with_date, info.id)
+                        exists = False
+                        break
+                    else:
+                        exists = True
+            if exists:
                 logger.debug('{} exists'.format(info.id))
-                return True
             else:
-                return self.check_loop(logger, info, files)
-        except StopIteration:
-            logger.debug('{} not exist'.format(info.id))
-            return False
+                logger.debug('{} not exist'.format(info.id))
+            return exists
+
+    def del_tem(self, tar_dir, keyword):
+        for file in os.listdir(tar_dir):
+            path = os.path.join(tar_dir, file)
+            if os.path.isfile(path) and re.search(keyword, file):
+                os.remove(path)
 
     @func_set_timeout(60 * 60)
     def download(self, download_script_repo, url, tar_dir):
