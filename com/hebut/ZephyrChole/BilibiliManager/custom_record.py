@@ -4,7 +4,6 @@
 # @file: custom_record.py
 # @time: 2/20/2021 12:58 PM
 import os
-import re
 import logging
 from subprocess import Popen, TimeoutExpired
 from bilibili_api import user
@@ -43,42 +42,25 @@ class CustomRecordDownloader(RecordDownloader):
     def start_loop(self, bvs):
         try:
             bv = next(bvs)
-            nonexistent_pages = self.get_nonexistent_pages(self.repo, bv, self.logger)
-            if len(nonexistent_pages):
-                self.download_loop(bv, nonexistent_pages)
+            self.download_loop(bv, [i for i in range(len(V.get_pages(bv)))])
             self.start_loop(bvs)
         except StopIteration:
             pass
 
-    def get_nonexistent_pages(self, repo, bv, logger):
-        pages = len(V.get_pages(bv))
-        exist_pages = {}
-        for i in range(1, pages + 1):
-            exist_pages[str(i)] = 0
-        for unit in os.listdir(repo):
-            if os.path.isfile(os.path.join(repo, unit)) and re.search(bv, unit):
-                result = re.search(',P(\d+),', unit)
-                if result and isinstance(exist_pages.get(result.group(1)), int):
-                    exist_pages[result.group(1)] += 1
-        np = list(map(lambda x: int(x), filter(lambda x: exist_pages.get(x) < 2, exist_pages.keys())))
-        if len(np):
-            logger.info('{} got nonexistent_pages,length:{}'.format(bv, np))
-        return np
-
-    def download_loop(self, bv, nonexistent_pages, attempt=0):
+    def download_loop(self, bv, pages, attempt=0):
         try:
-            self.download(bv, nonexistent_pages)
+            self.download(bv, pages)
         except TimeoutExpired:
             if attempt > 3:
                 self.logger.info('download timeout,skipping...')
             else:
                 self.logger.info('download timeout,{} attempt'.format(attempt))
-                self.download_loop(bv, nonexistent_pages, attempt + 1)
+                self.download_loop(bv, pages, attempt + 1)
 
-    def download(self, bv, nonexistent_pages):
+    def download(self, bv, pages):
         cwd = os.getcwd()
         os.chdir(self.download_script_repo)
-        pages = list(map(lambda x: str(x), nonexistent_pages))
+        pages = list(map(lambda x: str(x), pages))
         # python & download script path
         python_ver_and_script = ('python3', os.path.join(self.download_script_repo, "start.py"))
         highest_image_quality = ('--ym',)

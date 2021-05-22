@@ -8,7 +8,7 @@
 import logging
 import os
 import re
-from subprocess import Popen,TimeoutExpired
+from subprocess import Popen, TimeoutExpired
 from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check_path, get_file_logger, \
     get_headless_browser
 
@@ -104,16 +104,18 @@ class LiveRecordDownloader(RecordDownloader):
         try:
             info = next(infos)
             repo_with_date = os.path.join(self.repo, info.get_date())
-            if not self.check_for_exists(self.logger, info, repo_with_date):
-                self.download_loop(info.url, repo_with_date)
+            self.download_loop(info.url, repo_with_date)
             self.start_download(infos)
         except StopIteration:
             pass
 
     def download_loop(self, url, repo_with_date, attempt=0):
         try:
-            self.download(self.download_script_repo, url, repo_with_date)
-            return True
+            if check_path(repo_with_date):
+                self.download(self.download_script_repo, url, repo_with_date)
+                return True
+            else:
+                return False
         except TimeoutExpired:
             if attempt <= 3:
                 self.logger.info('download timeout,{} attempt'.format(attempt))
@@ -121,30 +123,6 @@ class LiveRecordDownloader(RecordDownloader):
             else:
                 self.logger.info('download timeout,skipping...')
                 return False
-
-    def check_for_exists(self, logger, info, repo_with_date):
-        if not check_path(repo_with_date):
-            return True
-        else:
-            exists = False
-            for file in os.listdir(repo_with_date):
-                if re.search(info.id, file):
-                    if re.search('_', file):
-                        exists = False
-                        break
-                    else:
-                        exists = True
-            if exists:
-                logger.debug('{} exists'.format(info.id))
-            else:
-                logger.debug('{} not exist'.format(info.id))
-            return exists
-
-    def del_tem(self, tar_dir, keyword):
-        for file in os.listdir(tar_dir):
-            path = os.path.join(tar_dir, file)
-            if os.path.isfile(path) and re.search(keyword, file):
-                os.remove(path)
 
     def download(self, download_script_repo, url, tar_dir):
         cwd = os.getcwd()
