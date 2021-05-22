@@ -8,6 +8,7 @@
 import logging
 import os
 import re
+from subprocess import Popen
 from func_timeout import func_set_timeout
 from func_timeout.exceptions import FunctionTimedOut
 
@@ -152,25 +153,29 @@ class LiveRecordDownloader(RecordDownloader):
     def download(self, download_script_repo, url, tar_dir):
         cwd = os.getcwd()
         os.chdir(download_script_repo)
-        python_ver_and_script = f'python3 {os.path.join(download_script_repo, "start.py")}'  # python & download script path
-        highest_image_quality = '--ym'
-        continued_download = '--yac'
-        delete_useless_file_after_downloading = '--yad'
-        not_delete_by_product_caption_after_downloading = '--bd'
-        add_avbv2filename = '--in'
-        redownload_after_download = '--yr'
-        use_ffmpeg = '--yf'
-        use_aria2c = '--ar'
-        aria2c_speed = '--ms 3m'
-        not_overwrite_duplicate_files = '-n'
-        download_video_method = '-d 1'  # 1.视频 2.弹幕 3.视频+弹幕
-        input_ = f'-i {url}'
-        target_dir = f'-o {tar_dir}'
-        not_show_in_explorer = '--nol'  # only valid on windows system.
+        python_ver_and_script = (
+            'python3', os.path.join(download_script_repo, "start.py"))  # python & download script path
+        highest_image_quality = ('--ym',)
+        continued_download = ('--yac',)
+        delete_useless_file_after_downloading = ('--yad',)
+        not_delete_by_product_caption_after_downloading = ('--bd',)
+        add_avbv2filename = ('--in',)
+        redownload_after_download = ('--yr',)
+        use_ffmpeg = ('--yf',)
+        use_aria2c = ('--ar',)
+        aria2c_speed = ('--ms', '3m')
+        not_overwrite_duplicate_files = ('-n',)
+        download_video_method = ('-d', '1')  # 1.视频 2.弹幕 3.视频+弹幕
+        input_ = ('-i', url)
+        target_dir = ('-o', tar_dir)
+        not_show_in_explorer = ('--nol',)  # only valid on windows system.
         download_video_parameters = [python_ver_and_script, highest_image_quality, continued_download,
                                      delete_useless_file_after_downloading, redownload_after_download, use_ffmpeg,
                                      not_delete_by_product_caption_after_downloading, add_avbv2filename, use_aria2c,
                                      aria2c_speed, not_overwrite_duplicate_files, download_video_method, input_,
                                      target_dir, not_show_in_explorer]
-        os.system(' '.join(download_video_parameters))
+        parameters = []
+        for p in download_video_parameters:
+            parameters.extend(p)
+        Popen(parameters, stdout=open(os.devnull)).wait(60 * 60)
         os.chdir(cwd)

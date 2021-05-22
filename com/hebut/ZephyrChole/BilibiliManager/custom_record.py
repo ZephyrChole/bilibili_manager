@@ -6,6 +6,7 @@
 import os
 import re
 import logging
+from subprocess import Popen
 from func_timeout import func_set_timeout
 from func_timeout.exceptions import FunctionTimedOut
 from bilibili_api import user
@@ -81,23 +82,24 @@ class CustomRecordDownloader(RecordDownloader):
         cwd = os.getcwd()
         os.chdir(self.download_script_repo)
         pages = list(map(lambda x: str(x), nonexistent_pages))
-        python_ver_and_script = f'python3 {os.path.join(self.download_script_repo, "start.py")}'  # python & download script path
-        highest_image_quality = '--ym'
-        continued_download = '--yac'
-        delete_useless_file_after_downloading = '--yad'
-        delete_by_product_caption_after_downloading = '--nbd'
-        add_avbv2filename = '--in'
-        redownload_after_download = '--yr'
-        use_ffmpeg = '--yf'
-        use_aria2c = '--ar'
-        aria2c_speed = '--ms 3m'
-        not_overwrite_duplicate_files = '-n'
-        download_video_method = '-d 3'  # 1.当前弹幕 2.全弹幕 3.视频 4.当前弹幕+视频 5.全弹幕+视频 6.仅字幕 7.仅封面图片 8.仅音频
-        download_audio_method = '-d 8'
-        page = f'-p {",".join(pages)}'
-        input_ = f'-i {bv}'
-        target_dir = f'-o {self.repo}'
-        not_show_in_explorer = '--nol'  # only valid on windows system.
+        python_ver_and_script = (
+            'python3', os.path.join(self.download_script_repo, "start.py"))  # python & download script path
+        highest_image_quality = ('--ym',)
+        continued_download = ('--yac',)
+        delete_useless_file_after_downloading = ('--yad',)
+        delete_by_product_caption_after_downloading = ('--nbd',)
+        add_avbv2filename = ('--in',)
+        redownload_after_download = ('--yr',)
+        use_ffmpeg = ('--yf',)
+        use_aria2c = ('--ar',)
+        aria2c_speed = ('--ms', '3m',)
+        not_overwrite_duplicate_files = ('-n',)
+        download_video_method = ('-d', '3')  # 1.当前弹幕 2.全弹幕 3.视频 4.当前弹幕+视频 5.全弹幕+视频 6.仅字幕 7.仅封面图片 8.仅音频
+        download_audio_method = ('-d', '8')
+        page = ('-p', ",".join(pages))
+        input_ = ('-i', bv)
+        target_dir = ('-o', self.repo)
+        not_show_in_explorer = ('--nol',)  # only valid on windows system.
         download_video_parameters = [python_ver_and_script, highest_image_quality, continued_download,
                                      delete_useless_file_after_downloading,
                                      delete_by_product_caption_after_downloading, add_avbv2filename,
@@ -110,6 +112,12 @@ class CustomRecordDownloader(RecordDownloader):
                                      redownload_after_download, use_ffmpeg, use_aria2c, aria2c_speed,
                                      not_overwrite_duplicate_files, download_audio_method, page, input_, target_dir,
                                      not_show_in_explorer]
-        os.system(' '.join(download_video_parameters))
-        os.system(' '.join(download_audio_parameters))
+        parameters = []
+        for p in download_video_parameters:
+            parameters.extend(p)
+        Popen(parameters, stdout=open(os.devnull)).wait()
+        parameters = []
+        for p in download_audio_parameters:
+            parameters.extend(p)
+        Popen(parameters, stdout=open(os.devnull)).wait()
         os.chdir(cwd)
