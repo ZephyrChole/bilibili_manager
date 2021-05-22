@@ -6,9 +6,7 @@
 import os
 import re
 import logging
-from subprocess import Popen
-from func_timeout import func_set_timeout
-from func_timeout.exceptions import FunctionTimedOut
+from subprocess import Popen, TimeoutExpired
 from bilibili_api import user
 from bilibili_api import video as V
 from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, get_file_logger
@@ -70,20 +68,19 @@ class CustomRecordDownloader(RecordDownloader):
     def download_loop(self, bv, nonexistent_pages, attempt=0):
         try:
             self.download(bv, nonexistent_pages)
-        except FunctionTimedOut:
+        except TimeoutExpired:
             if attempt > 3:
                 self.logger.info('download timeout,skipping...')
             else:
                 self.logger.info('download timeout,{} attempt'.format(attempt))
                 self.download_loop(bv, nonexistent_pages, attempt + 1)
 
-    @func_set_timeout(60 * 60)
     def download(self, bv, nonexistent_pages):
         cwd = os.getcwd()
         os.chdir(self.download_script_repo)
         pages = list(map(lambda x: str(x), nonexistent_pages))
-        python_ver_and_script = (
-            'python3', os.path.join(self.download_script_repo, "start.py"))  # python & download script path
+        # python & download script path
+        python_ver_and_script = ('python3', os.path.join(self.download_script_repo, "start.py"))
         highest_image_quality = ('--ym',)
         continued_download = ('--yac',)
         delete_useless_file_after_downloading = ('--yad',)
@@ -115,9 +112,9 @@ class CustomRecordDownloader(RecordDownloader):
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        Popen(parameters, stdout=open(os.devnull)).wait()
+        Popen(parameters, stdout=open(os.devnull)).wait(60 * 60)
         parameters = []
         for p in download_audio_parameters:
             parameters.extend(p)
-        Popen(parameters, stdout=open(os.devnull)).wait()
+        Popen(parameters, stdout=open(os.devnull)).wait(60 * 60)
         os.chdir(cwd)

@@ -8,10 +8,7 @@
 import logging
 import os
 import re
-from subprocess import Popen
-from func_timeout import func_set_timeout
-from func_timeout.exceptions import FunctionTimedOut
-
+from subprocess import Popen,TimeoutExpired
 from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check_path, get_file_logger, \
     get_headless_browser
 
@@ -117,7 +114,7 @@ class LiveRecordDownloader(RecordDownloader):
         try:
             self.download(self.download_script_repo, url, repo_with_date)
             return True
-        except FunctionTimedOut:
+        except TimeoutExpired:
             if attempt <= 3:
                 self.logger.info('download timeout,{} attempt'.format(attempt))
                 return self.download_loop(url, repo_with_date, attempt + 1)
@@ -149,12 +146,11 @@ class LiveRecordDownloader(RecordDownloader):
             if os.path.isfile(path) and re.search(keyword, file):
                 os.remove(path)
 
-    @func_set_timeout(60 * 60)
     def download(self, download_script_repo, url, tar_dir):
         cwd = os.getcwd()
         os.chdir(download_script_repo)
-        python_ver_and_script = (
-            'python3', os.path.join(download_script_repo, "start.py"))  # python & download script path
+        # python & download script path
+        python_ver_and_script = ('python3', os.path.join(download_script_repo, "start.py"))
         highest_image_quality = ('--ym',)
         continued_download = ('--yac',)
         delete_useless_file_after_downloading = ('--yad',)
