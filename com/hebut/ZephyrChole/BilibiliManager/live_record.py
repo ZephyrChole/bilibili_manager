@@ -143,13 +143,14 @@ class LiveRecordDownloader(RecordDownloader):
         input_ = ('-i', url)
         target_dir = ('-o', tar_dir)
         not_show_in_explorer = ('--nol',)  # only valid on windows system.
+        silent_mode = ('-s',)
         download_video_parameters = [python_ver_and_script, highest_image_quality, continued_download,
                                      delete_useless_file_after_downloading, redownload_after_download, use_ffmpeg,
                                      not_delete_by_product_caption_after_downloading, add_avbv2filename, use_aria2c,
                                      aria2c_speed, not_overwrite_duplicate_files, download_video_method, input_,
-                                     target_dir, not_show_in_explorer]
+                                     target_dir, not_show_in_explorer, silent_mode]
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        Popen(parameters, stdout=open(os.devnull,'w')).wait(60 * 60)
+        Popen(parameters, stdout=open(os.devnull, 'w')).wait(60 * 60)
         os.chdir(cwd)

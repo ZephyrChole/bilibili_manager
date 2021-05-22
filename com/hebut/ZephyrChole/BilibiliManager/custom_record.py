@@ -79,24 +79,25 @@ class CustomRecordDownloader(RecordDownloader):
         input_ = ('-i', bv)
         target_dir = ('-o', self.repo)
         not_show_in_explorer = ('--nol',)  # only valid on windows system.
+        silent_mode = ('-s',)
         download_video_parameters = [python_ver_and_script, highest_image_quality, continued_download,
                                      delete_useless_file_after_downloading,
                                      delete_by_product_caption_after_downloading, add_avbv2filename,
                                      redownload_after_download, use_ffmpeg, use_aria2c, aria2c_speed,
                                      not_overwrite_duplicate_files, download_video_method, page, input_, target_dir,
-                                     not_show_in_explorer]
+                                     not_show_in_explorer, silent_mode]
         download_audio_parameters = [python_ver_and_script, highest_image_quality, continued_download,
                                      delete_useless_file_after_downloading,
                                      delete_by_product_caption_after_downloading, add_avbv2filename,
                                      redownload_after_download, use_ffmpeg, use_aria2c, aria2c_speed,
                                      not_overwrite_duplicate_files, download_audio_method, page, input_, target_dir,
-                                     not_show_in_explorer]
+                                     not_show_in_explorer, silent_mode]
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        Popen(parameters, stdout=open(os.devnull,'w')).wait(60 * 60)
+        Popen(parameters, stdout=open(os.devnull, 'w')).wait(60 * 60)
         parameters = []
         for p in download_audio_parameters:
             parameters.extend(p)
-        Popen(parameters, stdout=open(os.devnull,'w')).wait(60 * 60)
+        Popen(parameters, stdout=open(os.devnull, 'w')).wait(60 * 60)
         os.chdir(cwd)
