@@ -8,7 +8,7 @@
 import logging
 import os
 import re
-from subprocess import Popen, TimeoutExpired
+from subprocess import Popen, TimeoutExpired, DEVNULL
 from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check_path, get_file_logger, \
     get_headless_browser
 
@@ -151,5 +151,5 @@ class LiveRecordDownloader(RecordDownloader):
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        Popen(parameters, stdout=open(os.devnull)).wait(60 * 60)
+        Popen(parameters, stdout=DEVNULL).wait(60 * 60)
         os.chdir(cwd)

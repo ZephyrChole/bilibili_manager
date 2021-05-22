@@ -5,7 +5,7 @@
 # @time: 2/20/2021 12:58 PM
 import os
 import logging
-from subprocess import Popen, TimeoutExpired
+from subprocess import Popen, TimeoutExpired, DEVNULL
 from bilibili_api import user
 from bilibili_api import video as V
 from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, get_file_logger
@@ -94,9 +94,9 @@ class CustomRecordDownloader(RecordDownloader):
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        Popen(parameters, stdout=open(os.devnull)).wait(60 * 60)
+        Popen(parameters, stdout=DEVNULL).wait(60 * 60)
         parameters = []
         for p in download_audio_parameters:
             parameters.extend(p)
-        Popen(parameters, stdout=open(os.devnull)).wait(60 * 60)
+        Popen(parameters, stdout=DEVNULL).wait(60 * 60)
         os.chdir(cwd)
