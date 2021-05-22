@@ -110,6 +110,7 @@ class LiveRecordDownloader(RecordDownloader):
             pass
 
     def download_loop(self, url, repo_with_date, attempt=0):
+        self.logger.info(f'new download started:{url}')
         try:
             if check_path(repo_with_date):
                 self.download(self.download_script_repo, url, repo_with_date)
@@ -118,10 +119,10 @@ class LiveRecordDownloader(RecordDownloader):
                 return False
         except TimeoutExpired:
             if attempt <= 3:
-                self.logger.info('download timeout,{} attempt'.format(attempt))
+                self.logger.info(f'{url} download timeout,{attempt} attempt')
                 return self.download_loop(url, repo_with_date, attempt + 1)
             else:
-                self.logger.info('download timeout,skipping...')
+                self.logger.info(f'{url} download timeout,skipping...')
                 return False
 
     def download(self, download_script_repo, url, tar_dir):

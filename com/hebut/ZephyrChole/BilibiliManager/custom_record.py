@@ -20,9 +20,9 @@ class CustomRecordDownloader(RecordDownloader):
 
     def main(self):
         self.logger.info(self.up.name)
-        self.logger.info('uid:{} start to inspect custom records'.format(self.up.uid))
+        self.logger.info(f'{self.up.name} uid:{self.up.uid} start to inspect custom records')
         bv = self.get_infos()
-        self.start_download(bv)
+        self.start_download(iter(bv))
 
     def get_infos(self, bvids=None, page=1):
         if bvids is None:
@@ -37,24 +37,22 @@ class CustomRecordDownloader(RecordDownloader):
             return set(bvids)
 
     def start_download(self, bvs):
-        self.start_loop(iter(bvs))
-
-    def start_loop(self, bvs):
         try:
             bv = next(bvs)
             self.download_loop(bv, [i for i in range(len(V.get_pages(bv)))])
-            self.start_loop(bvs)
+            self.start_download(bvs)
         except StopIteration:
             pass
 
     def download_loop(self, bv, pages, attempt=0):
+        self.logger.info(f'new download started:{bv}')
         try:
             self.download(bv, pages)
         except TimeoutExpired:
             if attempt > 3:
-                self.logger.info('download timeout,skipping...')
+                self.logger.info(f'{bv} download timeout,skipping...')
             else:
-                self.logger.info('download timeout,{} attempt'.format(attempt))
+                self.logger.info(f'{bv} download timeout,{attempt} attempt')
                 self.download_loop(bv, pages, attempt + 1)
 
     def download(self, bv, pages):
