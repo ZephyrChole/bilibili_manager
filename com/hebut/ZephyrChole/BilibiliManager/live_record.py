@@ -104,16 +104,17 @@ class LiveRecordDownloader(RecordDownloader):
         try:
             info = next(infos)
             repo_with_date = os.path.join(self.repo, info.get_date())
-            self.download_loop(info.url, repo_with_date)
+            self.download_loop(info, repo_with_date)
             self.start_download(infos)
         except StopIteration:
             pass
 
-    def download_loop(self, url, repo_with_date, attempt=0):
-        self.logger.info(f'new download started:{url}')
+    def download_loop(self, info, repo_with_date, attempt=0):
+        self.logger.info(f'new download started:{info.url}')
         try:
             if check_path(repo_with_date):
-                self.download(self.download_script_repo, url, repo_with_date)
+                self.clear_tem(info.id, repo_with_date)
+                self.download(self.download_script_repo, info.url, repo_with_date)
                 return True
             else:
                 return False
@@ -155,3 +156,12 @@ class LiveRecordDownloader(RecordDownloader):
             parameters.extend(p)
         Popen(parameters, stdout=open(os.devnull, 'w')).wait(60 * 60)
         os.chdir(cwd)
+
+    def clear_tem(self, id, repo_with_date):
+        unfinish_finder = re.compile('_\d')
+        id_finder = re.compile(id)
+        for file in os.listdir(repo_with_date):
+            if unfinish_finder.search(file) and id_finder.search(file):
+                full_path = os.path.join(repo_with_date, file)
+                os.remove(full_path)
+                self.logger.info(f'未完成下载:{full_path},已删除')
