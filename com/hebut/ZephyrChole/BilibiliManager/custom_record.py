@@ -27,7 +27,7 @@ class CustomRecordDownloader(RecordDownloader):
         self.logger.info(self.up.name)
         self.logger.info(f'{self.up.name} uid:{self.up.uid} start to inspect custom records')
         infos = self.get_infos()
-        self.start_download(iter(bv))
+        self.start_download(infos)
 
     def get_infos(self):
         infos = []
