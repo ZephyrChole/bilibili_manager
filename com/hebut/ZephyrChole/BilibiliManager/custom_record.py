@@ -103,7 +103,7 @@ class CustomRecordDownloader(RecordDownloader):
                                      redownload_after_download, use_ffmpeg, use_aria2c, aria2c_speed,
                                      not_overwrite_duplicate_files, download_audio_method, page, input_, target_dir,
                                      not_show_in_explorer, silent_mode]
-        log_file = './log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime()))
+        log_file = os.path.join(cwd, 'log', f'{time.strftime("%Y-%m-%d", time.localtime())}.log')
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
