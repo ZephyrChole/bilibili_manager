@@ -11,6 +11,11 @@ from bilibili_api import video as V
 from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, get_file_logger
 
 
+class CustomInfo:
+    def __init__(self, bv):
+        self.id = bv
+
+
 class CustomRecordDownloader(RecordDownloader):
     def __init__(self, download_script_repo, repo, up):
         self.download_script_repo = download_script_repo
@@ -21,44 +26,39 @@ class CustomRecordDownloader(RecordDownloader):
     def main(self):
         self.logger.info(self.up.name)
         self.logger.info(f'{self.up.name} uid:{self.up.uid} start to inspect custom records')
-        bv = self.get_infos()
+        infos = self.get_infos()
         self.start_download(iter(bv))
 
-    def get_infos(self, bvids=None, page=1):
-        if bvids is None:
-            bvids = []
-        vlist = user.get_videos_raw(uid=self.up.uid, pn=page).get('list').get('vlist')
-        if len(vlist):
-            bvids.extend([video.get('bvid') for video in vlist])
-            page += 1
-            return self.get_infos(bvids, page + 1)
-        else:
-            self.logger.info('got bvids,length:{}'.format(len(bvids)))
-            return set(bvids)
-
-    def start_download(self, bvs):
-        try:
-            bv = next(bvs)
-            self.download_loop(bv, [i for i in range(len(V.get_pages(bv)))])
-            self.start_download(bvs)
-        except StopIteration:
-            pass
-
-    def download_loop(self, bv, pages, attempt=0):
-        self.logger.info(f'new download started:{bv}')
-        try:
-            self.download(bv, pages)
-        except TimeoutExpired:
-            if attempt > 3:
-                self.logger.info(f'{bv} download timeout,skipping...')
+    def get_infos(self):
+        infos = []
+        page = 1
+        while True:
+            vlist = user.get_videos_raw(uid=self.up.uid, pn=page).get('list').get('vlist')
+            if len(vlist):
+                infos.extend([video.get('bvid') for video in vlist])
+                page += 1
             else:
-                self.logger.info(f'{bv} download timeout,{attempt} attempt')
-                self.download_loop(bv, pages, attempt + 1)
+                break
+        infos = list(map(lambda x: CustomInfo(x), set(infos)))
+        self.logger.info('got infos,length:{}'.format(len(infos)))
+        return infos
 
-    def download(self, bv, pages):
+    def start_download(self, infos):
+        for info in infos:
+            attempt = 0
+            while attempt < 3:
+                self.logger.info(f'new download started:{info.id}')
+                try:
+                    self.download(info, len(V.get_pages(info.id)))
+                except TimeoutExpired:
+                    attempt += 1
+                    self.logger.info(f'{info.id} download timeout,{attempt} attempt')
+            if attempt >= 3:
+                self.logger.info(f'{info.id} download timeout,skipping...')
+
+    def download(self, info, pages):
         cwd = os.getcwd()
         os.chdir(self.download_script_repo)
-        pages = list(map(lambda x: str(x), pages))
         # python & download script path
         python_ver_and_script = ('python3', os.path.join(self.download_script_repo, "start.py"))
         highest_image_quality = ('--ym',)
@@ -73,8 +73,8 @@ class CustomRecordDownloader(RecordDownloader):
         not_overwrite_duplicate_files = ('-n',)
         download_video_method = ('-d', '3')  # 1.当前弹幕 2.全弹幕 3.视频 4.当前弹幕+视频 5.全弹幕+视频 6.仅字幕 7.仅封面图片 8.仅音频
         download_audio_method = ('-d', '8')
-        page = ('-p', ",".join(pages))
-        input_ = ('-i', bv)
+        page = ('-p', ",".join([str(i) for i in range(pages)]))
+        input_ = ('-i', info.id)
         target_dir = ('-o', self.repo)
         not_show_in_explorer = ('--nol',)  # only valid on windows system.
         silent_mode = ('-s',)

@@ -63,6 +63,7 @@ class Downloader:
         self.upper_repo = get_abs(upper_repo)
 
     def main(self):
+        self.logger.debug(f'pid:{os.getpid()}')
         if os.path.exists(self.settings):
             self.logger.info('有配置文件，开始运行')
             infos = self.info_parse(self.read(self.settings))

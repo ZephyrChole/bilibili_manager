@@ -11,6 +11,7 @@ from abc import ABCMeta, abstractmethod
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
+
 def get_abs(path):
     return path if os.path.isabs(path) else os.path.abspath(path)
 

@@ -13,7 +13,7 @@ from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check
     get_headless_browser
 
 
-class LiveRecordDownloadInfo:
+class LiveInfo:
     def __init__(self, url, date_str):
         self.url = url
         self.id = re.search('([^/]+)$', url).group(1)
@@ -42,7 +42,7 @@ class LiveRecordDownloader(RecordDownloader):
         self.logger.info(self.up.name)
         self.logger.info('live_url:{} start to inspect live records'.format(self.up.live_url))
         download_infos = self.get_infos()
-        self.start_download(iter(download_infos))
+        self.start_download(download_infos)
 
     def get_infos(self):
         def enter_live():
@@ -90,7 +90,7 @@ class LiveRecordDownloader(RecordDownloader):
             while True:
                 try:
                     url, date = get_url_and_date()
-                    download_infos.append(LiveRecordDownloadInfo(url, date))
+                    download_infos.append(LiveInfo(url, date))
                     count += 1
                 except:
                     break
@@ -101,36 +101,28 @@ class LiveRecordDownloader(RecordDownloader):
         return download_infos
 
     def start_download(self, infos):
-        try:
-            info = next(infos)
+        for info in infos:
             repo_with_date = os.path.join(self.repo, info.get_date())
-            self.download_loop(info, repo_with_date)
-            self.start_download(infos)
-        except StopIteration:
-            pass
+            self.logger.info(f'new download started:{info.id}')
+            attempt = 0
+            while attempt < 3:
+                try:
+                    if check_path(repo_with_date):
+                        self.clear_tem(info.id, repo_with_date)
+                        self.download(info.url, repo_with_date)
+                        self.logger.info(f'download:{info.id} success')
+                    break
+                except TimeoutExpired:
+                    attempt += 1
+                    self.logger.info(f'{info.id} download timeout,{attempt} attempt')
+            if attempt >= 3:
+                self.logger.info(f'{info.id} download timeout,skipping...')
 
-    def download_loop(self, info, repo_with_date, attempt=0):
-        self.logger.info(f'new download started:{info.url}')
-        try:
-            if check_path(repo_with_date):
-                self.clear_tem(info.id, repo_with_date)
-                self.download(self.download_script_repo, info.url, repo_with_date)
-                return True
-            else:
-                return False
-        except TimeoutExpired:
-            if attempt <= 3:
-                self.logger.info(f'{url} download timeout,{attempt} attempt')
-                return self.download_loop(url, repo_with_date, attempt + 1)
-            else:
-                self.logger.info(f'{url} download timeout,skipping...')
-                return False
-
-    def download(self, download_script_repo, url, tar_dir):
+    def download(self, url, tar_dir):
         cwd = os.getcwd()
-        os.chdir(download_script_repo)
+        os.chdir(self.download_script_repo)
         # python & download script path
-        python_ver_and_script = ('python3', os.path.join(download_script_repo, "start.py"))
+        python_ver_and_script = ('python3', os.path.join(self.download_script_repo, "start.py"))
         highest_image_quality = ('--ym',)
         continued_download = ('--yac',)
         delete_useless_file_after_downloading = ('--yad',)
