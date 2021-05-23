@@ -118,6 +118,9 @@ class LiveRecordDownloader(RecordDownloader):
             if attempt >= 3:
                 self.logger.info(f'{info.id} download timeout,skipping...')
 
+    def isExist(self, info, repo_with_date):
+        pass
+
     def download(self, url, tar_dir):
         cwd = os.getcwd()
         os.chdir(self.download_script_repo)

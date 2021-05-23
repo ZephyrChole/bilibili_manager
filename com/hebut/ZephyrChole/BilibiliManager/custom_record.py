@@ -50,11 +50,15 @@ class CustomRecordDownloader(RecordDownloader):
                 self.logger.info(f'new download started:{info.id}')
                 try:
                     self.download(info, len(V.get_pages(info.id)))
+                    break
                 except TimeoutExpired:
                     attempt += 1
                     self.logger.info(f'{info.id} download timeout,{attempt} attempt')
             if attempt >= 3:
                 self.logger.info(f'{info.id} download timeout,skipping...')
+
+    def isExist(self, info):
+        pass
 
     def download(self, info, pages):
         cwd = os.getcwd()
