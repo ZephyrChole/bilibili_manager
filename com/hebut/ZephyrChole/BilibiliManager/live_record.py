@@ -150,7 +150,7 @@ class LiveRecordDownloader(RecordDownloader):
                                      not_delete_by_product_caption_after_downloading, add_avbv2filename, use_aria2c,
                                      aria2c_speed, not_overwrite_duplicate_files, download_video_method, input_,
                                      target_dir, not_show_in_explorer, silent_mode]
-        log_file = os.path.join(cwd, 'log', f'{time.strftime("%Y-%m-%d", time.localtime())}.log')
+        log_file = os.path.join(cwd, 'log', f'{time.strftime("%Y-%m-%d-bili", time.localtime())}.log')
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
