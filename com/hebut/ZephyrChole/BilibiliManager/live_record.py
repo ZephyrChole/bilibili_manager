@@ -8,6 +8,7 @@
 import logging
 import os
 import re
+import time
 from subprocess import Popen, TimeoutExpired
 from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check_path, get_file_logger, \
     get_headless_browser
@@ -152,7 +153,7 @@ class LiveRecordDownloader(RecordDownloader):
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        Popen(parameters, stdout=open(os.devnull, 'w')).wait(60 * 60)
+        Popen(parameters, stdout=open('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())), 'w')).wait(60 * 60)
         os.chdir(cwd)
 
     def clear_tem(self, id, repo_with_date):

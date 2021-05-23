@@ -6,6 +6,7 @@
 import os
 import logging
 import re
+import time
 from subprocess import Popen, TimeoutExpired
 from bilibili_api import user
 from bilibili_api import video as V
@@ -102,12 +103,13 @@ class CustomRecordDownloader(RecordDownloader):
                                      redownload_after_download, use_ffmpeg, use_aria2c, aria2c_speed,
                                      not_overwrite_duplicate_files, download_audio_method, page, input_, target_dir,
                                      not_show_in_explorer, silent_mode]
+        log_file = './log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime()))
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        Popen(parameters, stdout=open(os.devnull, 'w')).wait(60 * 60)
+        Popen(parameters, stdout=open(log_file, 'w')).wait(60 * 60)
         parameters = []
         for p in download_audio_parameters:
             parameters.extend(p)
-        Popen(parameters, stdout=open(os.devnull, 'w')).wait(60 * 60)
+        Popen(parameters, stdout=open(log_file, 'w')).wait(60 * 60)
         os.chdir(cwd)
