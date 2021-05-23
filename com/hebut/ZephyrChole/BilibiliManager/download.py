@@ -55,7 +55,7 @@ class Task:
 
 
 class Downloader:
-    logger = get_file_logger(logging.INFO, 'downloader')
+    logger = get_file_logger(logging.DEBUG, 'downloader')
 
     def __init__(self, download_script_repo, settings, upper_repo):
         self.download_script_repo = get_abs(download_script_repo)
