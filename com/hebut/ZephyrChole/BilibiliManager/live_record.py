@@ -107,7 +107,7 @@ class LiveRecordDownloader(RecordDownloader):
             attempt = 0
             while attempt < 3:
                 try:
-                    if check_path(repo_with_date):
+                    if check_path(repo_with_date) and not self.isExist(info, repo_with_date):
                         self.clear_tem(info.id, repo_with_date)
                         self.download(info.url, repo_with_date)
                         self.logger.info(f'download:{info.id} success')
@@ -119,7 +119,10 @@ class LiveRecordDownloader(RecordDownloader):
                 self.logger.info(f'{info.id} download timeout,skipping...')
 
     def isExist(self, info, repo_with_date):
-        pass
+        for file in os.listdir(repo_with_date):
+            if re.search(info.id, file):
+                return True
+        return False
 
     def download(self, url, tar_dir):
         cwd = os.getcwd()

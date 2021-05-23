@@ -5,6 +5,7 @@
 # @time: 2/20/2021 12:58 PM
 import os
 import logging
+import re
 from subprocess import Popen, TimeoutExpired
 from bilibili_api import user
 from bilibili_api import video as V
@@ -49,7 +50,8 @@ class CustomRecordDownloader(RecordDownloader):
             while attempt < 3:
                 self.logger.info(f'new download started:{info.id}')
                 try:
-                    self.download(info, len(V.get_pages(info.id)))
+                    if self.isExist(info):
+                        self.download(info, len(V.get_pages(info.id)))
                     break
                 except TimeoutExpired:
                     attempt += 1
@@ -58,7 +60,11 @@ class CustomRecordDownloader(RecordDownloader):
                 self.logger.info(f'{info.id} download timeout,skipping...')
 
     def isExist(self, info):
-        pass
+        count = 0
+        for file in os.listdir(self.repo):
+            if re.search(info.id, file):
+                count += 1
+        return count == 2
 
     def download(self, info, pages):
         cwd = os.getcwd()
