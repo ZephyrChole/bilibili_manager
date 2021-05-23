@@ -50,10 +50,10 @@ class CustomRecordDownloader(RecordDownloader):
             while attempt < 3:
                 try:
                     if self.isExist(info):
+                        self.logger.info(f'{info.id} exists')
+                    else:
                         self.logger.info(f'new download started:{info.id}')
                         self.download(info, len(V.get_pages(info.id)))
-                    else:
-                        self.logger.info(f'{info.id} exists')
                     break
                 except TimeoutExpired:
                     attempt += 1
