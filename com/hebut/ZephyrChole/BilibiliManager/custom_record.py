@@ -5,8 +5,7 @@
 # @time: 2/20/2021 12:58 PM
 import os
 import re
-import time
-from subprocess import Popen, TimeoutExpired
+from subprocess import TimeoutExpired
 from bilibili_api import user
 from bilibili_api import video as V
 from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader
@@ -34,22 +33,12 @@ class CustomRecordDownloader(RecordDownloader):
         self.logger.info('got infos,length:{}'.format(len(infos)))
         return infos
 
-    def start_download(self, infos):
-        for info in infos:
-            attempt = 0
-            while attempt < 3:
-                try:
-                    if self.isExist(info):
-                        self.logger.info(f'{info.id} exists')
-                    else:
-                        self.logger.info(f'new download started:{info.id}')
-                        self.download(info, len(V.get_pages(info.id)))
-                    break
-                except TimeoutExpired:
-                    attempt += 1
-                    self.logger.info(f'{info.id} download timeout,{attempt} attempt')
-            if attempt >= 3:
-                self.logger.info(f'{info.id} download timeout,skipping...')
+    def monitor_download(self, info):
+        if self.isExist(info):
+            self.logger.info(f'{info.id} exists')
+        else:
+            self.logger.info(f'new download started:{info.id}')
+            self.download(info, len(V.get_pages(info.id)))
 
     def isExist(self, info):
         count = 0

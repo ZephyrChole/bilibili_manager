@@ -8,7 +8,7 @@ import os
 import time
 import logging
 from abc import ABCMeta, abstractmethod
-from subprocess import Popen
+from subprocess import Popen, TimeoutExpired
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
@@ -53,6 +53,7 @@ def get_headless_browser():
 class RecordDownloader(metaclass=ABCMeta):
     logger = get_file_logger(logging.DEBUG)
     folder = 'default'
+    max_retry = 3
 
     def __init__(self, download_script_repo, upper_repo, up):
         self.download_script_repo = download_script_repo
@@ -69,14 +70,27 @@ class RecordDownloader(metaclass=ABCMeta):
             self.logger.error('path check fail')
             return False
 
-    def start_popen(self, parameters, cwd):
-        log_file = os.path.join(cwd, 'log', f'{time.strftime("%Y-%m-%d-bili", time.localtime())}.log')
-        Popen(parameters, stdout=open(log_file, 'w')).wait(60 * 60)
-
     @abstractmethod
     def get_infos(self):
         pass
 
-    @abstractmethod
     def start_download(self, infos):
+        for info in infos:
+            attempt = 0
+            while attempt < self.max_retry:
+                try:
+                    self.monitor_download(info)
+                    break
+                except TimeoutExpired:
+                    attempt += 1
+                    self.logger.info(f'{info.id} download timeout,{attempt} attempt')
+            if attempt >= self.max_retry:
+                self.logger.info(f'{info.id} download timeout,skipping...')
+
+    @abstractmethod
+    def monitor_download(self, info):
         pass
+
+    def start_popen(self, parameters, cwd):
+        log_file = os.path.join(cwd, 'log', f'{time.strftime("%Y-%m-%d-bili", time.localtime())}.log')
+        Popen(parameters, stdout=open(log_file, 'w')).wait(60 * 60)

@@ -6,8 +6,7 @@
 # @time: 2/20/2021 12:44 PM
 import os
 import re
-import time
-from subprocess import Popen, TimeoutExpired
+from subprocess import TimeoutExpired
 from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check_path, get_headless_browser
 
 
@@ -88,23 +87,18 @@ class LiveRecordDownloader(RecordDownloader):
         browser.quit()
         return download_infos
 
-    def start_download(self, infos):
-        for info in infos:
-            repo_with_date = os.path.join(self.repo, info.get_date())
-            self.logger.info(f'new download started:{info.id}')
-            attempt = 0
-            while attempt < 3:
-                try:
-                    if check_path(repo_with_date) and not self.isExist(info, repo_with_date):
-                        self.clear_tem(info.id, repo_with_date)
-                        self.download(info.url, repo_with_date)
-                        self.logger.info(f'download:{info.id} success')
-                    break
-                except TimeoutExpired:
-                    attempt += 1
-                    self.logger.info(f'{info.id} download timeout,{attempt} attempt')
-            if attempt >= 3:
-                self.logger.info(f'{info.id} download timeout,skipping...')
+    def monitor_download(self, info):
+        repo_with_date = os.path.join(self.repo, info.get_date())
+        if check_path(repo_with_date):
+            if self.isExist(info, repo_with_date):
+                self.logger.info(f'{info.id} exists')
+            else:
+                self.logger.info(f'new download started:{info.id}')
+                self.clear_tem(info.id, repo_with_date)
+                self.download(info.url, repo_with_date)
+                self.logger.info(f'download:{info.id} success')
+        else:
+            self.logger.error()
 
     def isExist(self, info, repo_with_date):
         for file in os.listdir(repo_with_date):
