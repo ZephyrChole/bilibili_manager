@@ -4,13 +4,12 @@
 # @file: custom_record.py
 # @time: 2/20/2021 12:58 PM
 import os
-import logging
 import re
 import time
 from subprocess import Popen, TimeoutExpired
 from bilibili_api import user
 from bilibili_api import video as V
-from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, get_file_logger
+from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader
 
 
 class CustomInfo:
@@ -19,17 +18,7 @@ class CustomInfo:
 
 
 class CustomRecordDownloader(RecordDownloader):
-    def __init__(self, download_script_repo, repo, up):
-        self.download_script_repo = download_script_repo
-        self.repo = repo
-        self.up = up
-        self.logger = get_file_logger(logging.DEBUG, f'cr up:{self.up.uid}-{self.up.name}')
-
-    def main(self):
-        self.logger.info(self.up.name)
-        self.logger.info(f'{self.up.name} uid:{self.up.uid} start to inspect custom records')
-        infos = self.get_infos()
-        self.start_download(infos)
+    folder = 'custom_record'
 
     def get_infos(self):
         infos = []
@@ -103,13 +92,12 @@ class CustomRecordDownloader(RecordDownloader):
                                      redownload_after_download, use_ffmpeg, use_aria2c, aria2c_speed,
                                      not_overwrite_duplicate_files, download_audio_method, page, input_, target_dir,
                                      not_show_in_explorer, silent_mode]
-        log_file = os.path.join(cwd, 'log', f'{time.strftime("%Y-%m-%d-bili", time.localtime())}.log')
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        Popen(parameters, stdout=open(log_file, 'w')).wait(60 * 60)
+        self.start_popen(parameters, cwd)
         parameters = []
         for p in download_audio_parameters:
             parameters.extend(p)
-        Popen(parameters, stdout=open(log_file, 'w')).wait(60 * 60)
+        self.start_popen(parameters, cwd)
         os.chdir(cwd)

@@ -8,6 +8,7 @@ import os
 import time
 import logging
 from abc import ABCMeta, abstractmethod
+from subprocess import Popen
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
@@ -31,7 +32,7 @@ def check_path(dir_path):
             return False
 
 
-def get_file_logger(level, name):
+def get_file_logger(level, name='foo'):
     formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
     fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())),
                              encoding='utf-8')
@@ -50,10 +51,27 @@ def get_headless_browser():
 
 
 class RecordDownloader(metaclass=ABCMeta):
+    logger = get_file_logger(logging.DEBUG)
+    folder = 'default'
 
-    @abstractmethod
+    def __init__(self, download_script_repo, upper_repo, up):
+        self.download_script_repo = download_script_repo
+        self.repo = os.path.join(upper_repo, self.folder)
+        self.up = up
+
     def main(self):
-        pass
+        self.logger.info(f'{self.folder} download start')
+        if check_path(self.repo):
+            self.logger.info('path check success')
+            self.start_download(self.get_infos())
+            return True
+        else:
+            self.logger.error('path check fail')
+            return False
+
+    def start_popen(self, parameters, cwd):
+        log_file = os.path.join(cwd, 'log', f'{time.strftime("%Y-%m-%d-bili", time.localtime())}.log')
+        Popen(parameters, stdout=open(log_file, 'w')).wait(60 * 60)
 
     @abstractmethod
     def get_infos(self):

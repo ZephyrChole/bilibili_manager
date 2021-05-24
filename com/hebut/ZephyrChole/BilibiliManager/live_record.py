@@ -4,14 +4,11 @@
 # @software: PyCharm
 # @file: live_record.py
 # @time: 2/20/2021 12:44 PM
-
-import logging
 import os
 import re
 import time
 from subprocess import Popen, TimeoutExpired
-from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check_path, get_file_logger, \
-    get_headless_browser
+from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check_path, get_headless_browser
 
 
 class LiveInfo:
@@ -33,17 +30,7 @@ class LiveInfo:
 
 
 class LiveRecordDownloader(RecordDownloader):
-    def __init__(self, download_script_repo, repo, up):
-        self.download_script_repo = download_script_repo
-        self.repo = repo
-        self.up = up
-        self.logger = get_file_logger(logging.DEBUG, f'lr up:{self.up.uid}-{self.up.name}')
-
-    def main(self):
-        self.logger.info(self.up.name)
-        self.logger.info('live_url:{} start to inspect live records'.format(self.up.live_url))
-        download_infos = self.get_infos()
-        self.start_download(download_infos)
+    folder = 'live_record'
 
     def get_infos(self):
         def enter_live():
@@ -150,11 +137,10 @@ class LiveRecordDownloader(RecordDownloader):
                                      not_delete_by_product_caption_after_downloading, add_avbv2filename, use_aria2c,
                                      aria2c_speed, not_overwrite_duplicate_files, download_video_method, input_,
                                      target_dir, not_show_in_explorer, silent_mode]
-        log_file = os.path.join(cwd, 'log', f'{time.strftime("%Y-%m-%d-bili", time.localtime())}.log')
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        Popen(parameters, stdout=open(log_file, 'w')).wait(60 * 60)
+        self.start_popen(parameters, cwd)
         os.chdir(cwd)
 
     def clear_tem(self, id, repo_with_date):
