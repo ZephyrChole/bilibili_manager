@@ -32,8 +32,8 @@ def check_path(dir_path):
             return False
 
 
-def get_file_logger(level, name='foo'):
-    formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
+def get_file_logger(level, name):
+    formatter = logging.Formatter("%(asctime)s - %(name)s[line:%(lineno)d] - %(levelname)s: %(message)s")
     fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())),
                              encoding='utf-8')
     fh.setLevel(level)
@@ -51,7 +51,6 @@ def get_headless_browser():
 
 
 class RecordDownloader(metaclass=ABCMeta):
-    logger = get_file_logger(logging.DEBUG)
     folder = 'default'
     max_retry = 3
 
@@ -59,6 +58,7 @@ class RecordDownloader(metaclass=ABCMeta):
         self.download_script_repo = download_script_repo
         self.repo = os.path.join(upper_repo, self.folder)
         self.up = up
+        self.logger = get_file_logger(logging.DEBUG, f'download {self.up.uid} {self.folder}')
 
     def main(self):
         self.logger.info(f'{self.folder} download start')

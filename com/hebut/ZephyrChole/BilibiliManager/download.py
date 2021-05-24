@@ -15,7 +15,7 @@ from com.hebut.ZephyrChole.BilibiliManager.public import check_path, get_file_lo
 
 
 class Downloader:
-    logger = get_file_logger(logging.DEBUG)
+    logger = get_file_logger(logging.DEBUG,'downloader')
 
     def __init__(self, download_script_repo, settings, upper_repo):
         self.download_script_repo = get_abs(download_script_repo)
@@ -63,7 +63,7 @@ class UPTask:
         self.custom = info.get('custom')
         self.up = UP(info.get('uid'))
         self.repo = os.path.join(upper_repo, '{}-{}'.format(self.up.uid, self.up.name))
-        self.logger = get_file_logger(logging.DEBUG)
+        self.logger = get_file_logger(logging.DEBUG,f'UPTask {self.up.uid}')
 
     def main(self):
         check_path('./log')
