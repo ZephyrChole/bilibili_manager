@@ -6,7 +6,6 @@
 # @time: 2/20/2021 12:44 PM
 import os
 import re
-from subprocess import TimeoutExpired
 from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check_path, get_headless_browser
 
 
@@ -98,7 +97,7 @@ class LiveRecordDownloader(RecordDownloader):
                 self.download(info.url, repo_with_date)
                 self.logger.info(f'download:{info.id} success')
         else:
-            self.logger.error()
+            self.logger.error('date folder check failed')
 
     def isExist(self, info, repo_with_date):
         for file in os.listdir(repo_with_date):

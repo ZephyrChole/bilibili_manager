@@ -5,7 +5,6 @@
 # @time: 2/20/2021 12:58 PM
 import os
 import re
-from subprocess import TimeoutExpired
 from bilibili_api import user
 from bilibili_api import video as V
 from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader
