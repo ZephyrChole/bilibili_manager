@@ -105,6 +105,15 @@ class LiveRecordDownloader(RecordDownloader):
                 return True
         return False
 
+    def clear_tem(self, id, repo_with_date):
+        unfinish_finder = re.compile('_\d')
+        id_finder = re.compile(id)
+        for file in os.listdir(repo_with_date):
+            if unfinish_finder.search(file) and id_finder.search(file):
+                full_path = os.path.join(repo_with_date, file)
+                os.remove(full_path)
+                self.logger.info(f'未完成下载:{full_path},已删除')
+
     def download(self, url, tar_dir):
         cwd = os.getcwd()
         os.chdir(self.download_script_repo)
@@ -135,12 +144,3 @@ class LiveRecordDownloader(RecordDownloader):
             parameters.extend(p)
         self.start_popen(parameters, cwd)
         os.chdir(cwd)
-
-    def clear_tem(self, id, repo_with_date):
-        unfinish_finder = re.compile('_\d')
-        id_finder = re.compile(id)
-        for file in os.listdir(repo_with_date):
-            if unfinish_finder.search(file) and id_finder.search(file):
-                full_path = os.path.join(repo_with_date, file)
-                os.remove(full_path)
-                self.logger.info(f'未完成下载:{full_path},已删除')

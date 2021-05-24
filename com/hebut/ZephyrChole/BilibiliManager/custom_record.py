@@ -6,7 +6,7 @@
 import os
 import re
 from bilibili_api import user
-from bilibili_api import video as V
+from bilibili_api.video import get_pages
 from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader
 
 
@@ -37,7 +37,8 @@ class CustomRecordDownloader(RecordDownloader):
             self.logger.info(f'{info.id} exists')
         else:
             self.logger.info(f'new download started:{info.id}')
-            self.download(info, len(V.get_pages(info.id)))
+            self.download(info, len(get_pages(info.id)))
+            self.logger.info(f'download:{info.id} success')
 
     def isExist(self, info):
         count = 0
