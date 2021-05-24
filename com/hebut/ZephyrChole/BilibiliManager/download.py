@@ -15,7 +15,7 @@ from com.hebut.ZephyrChole.BilibiliManager.public import check_path, get_file_lo
 
 
 class Downloader:
-    logger = get_file_logger(logging.DEBUG,'downloader')
+    logger = get_file_logger(logging.DEBUG,'main')
 
     def __init__(self, download_script_repo, settings, upper_repo):
         self.download_script_repo = get_abs(download_script_repo)

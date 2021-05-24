@@ -58,7 +58,7 @@ class RecordDownloader(metaclass=ABCMeta):
         self.download_script_repo = download_script_repo
         self.repo = os.path.join(upper_repo, self.folder)
         self.up = up
-        self.logger = get_file_logger(logging.DEBUG, f'download {self.up.uid} {self.folder}')
+        self.logger = get_file_logger(logging.DEBUG, f'downloader uid:{self.up.uid} folder:{self.folder}')
 
     def main(self):
         self.logger.info(f'{self.folder} download start')
