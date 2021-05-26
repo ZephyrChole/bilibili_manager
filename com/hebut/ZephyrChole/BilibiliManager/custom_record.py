@@ -43,9 +43,9 @@ class CustomRecordDownloader(RecordDownloader):
     def isExist(self, info, tar_dir):
         count = 0
         for file in os.listdir(tar_dir):
-            if re.search(info.id, file) and count == 1:
-                return True
-        return False
+            if re.search(info.id, file):
+                count += 1
+        return count == 2
 
     def download(self, info, pages):
         cwd = os.getcwd()
