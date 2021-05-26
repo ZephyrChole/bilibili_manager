@@ -30,7 +30,7 @@ class LiveInfo:
 class LiveRecordDownloader(RecordDownloader):
     folder = 'live_record'
 
-    def get_infos(self):
+    def get_info(self):
         def enter_live():
             self.logger.info('entered live')
             browser.get(self.up.live_url)
@@ -99,8 +99,8 @@ class LiveRecordDownloader(RecordDownloader):
         else:
             self.logger.error('date folder check failed')
 
-    def isExist(self, info, repo_with_date):
-        for file in os.listdir(repo_with_date):
+    def isExist(self, info, tar_dir):
+        for file in os.listdir(tar_dir):
             if re.search(info.id, file):
                 return True
         return False

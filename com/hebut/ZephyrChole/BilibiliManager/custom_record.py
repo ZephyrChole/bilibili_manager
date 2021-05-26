@@ -18,7 +18,7 @@ class CustomInfo:
 class CustomRecordDownloader(RecordDownloader):
     folder = 'custom_record'
 
-    def get_infos(self):
+    def get_info(self):
         infos = []
         page = 1
         while True:
@@ -33,19 +33,19 @@ class CustomRecordDownloader(RecordDownloader):
         return infos
 
     def monitor_download(self, info):
-        if self.isExist(info):
+        if self.isExist(info, self.repo):
             self.logger.info(f'{info.id} exists')
         else:
             self.logger.info(f'new download started:{info.id}')
             self.download(info, len(get_pages(info.id)))
             self.logger.info(f'download:{info.id} success')
 
-    def isExist(self, info):
+    def isExist(self, info, tar_dir):
         count = 0
-        for file in os.listdir(self.repo):
-            if re.search(info.id, file):
-                count += 1
-        return count == 2
+        for file in os.listdir(tar_dir):
+            if re.search(info.id, file) and count == 1:
+                return True
+        return False
 
     def download(self, info, pages):
         cwd = os.getcwd()

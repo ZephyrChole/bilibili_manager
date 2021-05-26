@@ -64,14 +64,14 @@ class RecordDownloader(metaclass=ABCMeta):
         self.logger.info(f'{self.folder} download start')
         if check_path(self.repo):
             self.logger.info('path check success')
-            self.start_download(self.get_infos())
+            self.start_download(self.get_info())
             return True
         else:
             self.logger.error('path check fail')
             return False
 
     @abstractmethod
-    def get_infos(self):
+    def get_info(self):
         pass
 
     def start_download(self, infos):
@@ -89,6 +89,10 @@ class RecordDownloader(metaclass=ABCMeta):
 
     @abstractmethod
     def monitor_download(self, info):
+        pass
+
+    @abstractmethod
+    def isExist(self, info, tar_dir):
         pass
 
     def start_popen(self, parameters, cwd):
