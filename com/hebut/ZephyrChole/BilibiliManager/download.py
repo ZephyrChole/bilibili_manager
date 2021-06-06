@@ -7,7 +7,6 @@ import logging
 import os
 import xlrd
 import xlwt
-from com.hebut.ZephyrChole.BilibiliManager.public import get_abs
 from bilibili_api import user
 from com.hebut.ZephyrChole.BilibiliManager.custom_record import CustomRecordDownloader
 from com.hebut.ZephyrChole.BilibiliManager.live_record import LiveRecordDownloader
@@ -18,9 +17,9 @@ class Downloader:
     logger = get_file_logger(logging.DEBUG,'main')
 
     def __init__(self, download_script_repo, settings, upper_repo):
-        self.download_script_repo = get_abs(download_script_repo)
-        self.setting_path = get_abs(settings)
-        self.upper_repo = get_abs(upper_repo)
+        self.download_script_repo = os.path.abspath(download_script_repo)
+        self.setting_path = os.path.abspath(settings)
+        self.upper_repo = os.path.abspath(upper_repo)
 
     def main(self):
         self.logger.debug(f'pid:{os.getpid()}')

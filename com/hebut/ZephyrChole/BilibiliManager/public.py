@@ -13,10 +13,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 
-def get_abs(path):
-    return path if os.path.isabs(path) else os.path.abspath(path)
-
-
 def check_path(dir_path):
     if os.path.exists(dir_path) and os.path.isdir(dir_path):
         return True
