@@ -13,6 +13,7 @@ from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader
 class CustomInfo:
     def __init__(self, bv):
         self.id = bv
+        self.pages = get_pages(bv)
 
 
 class CustomRecordDownloader(RecordDownloader):
@@ -37,7 +38,7 @@ class CustomRecordDownloader(RecordDownloader):
             self.logger.info(f'{info.id} exists')
         else:
             self.logger.info(f'new download started:{info.id}')
-            self.download(info, len(get_pages(info.id)))
+            self.download(info)
             self.logger.info(f'download:{info.id} success')
 
     def isExist(self, info, tar_dir):
@@ -45,9 +46,9 @@ class CustomRecordDownloader(RecordDownloader):
         for file in os.listdir(tar_dir):
             if re.search(info.id, file):
                 count += 1
-        return count == 2
+        return count == 2 * len(info.pages)
 
-    def download(self, info, pages):
+    def download(self, info):
         cwd = os.getcwd()
         os.chdir(self.download_script_repo)
         # python & download script path
@@ -64,7 +65,7 @@ class CustomRecordDownloader(RecordDownloader):
         not_overwrite_duplicate_files = ('-n',)
         download_video_method = ('-d', '3')  # 1.当前弹幕 2.全弹幕 3.视频 4.当前弹幕+视频 5.全弹幕+视频 6.仅字幕 7.仅封面图片 8.仅音频
         download_audio_method = ('-d', '8')
-        page = ('-p', ",".join([str(i) for i in range(pages)]))
+        page = ('-p', ",".join([str(i) for i in range(len(info.pages))]))
         input_ = ('-i', info.id)
         target_dir = ('-o', self.repo)
         not_show_in_explorer = ('--nol',)  # only valid on windows system.
