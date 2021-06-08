@@ -89,13 +89,13 @@ class LiveRecordDownloader(RecordDownloader):
     def monitor_download(self, info):
         repo_with_date = os.path.join(self.repo, info.get_date())
         if check_path(repo_with_date):
+            self.clear_tem(info.id, repo_with_date)
             if self.isExist(info, repo_with_date):
                 self.logger.info(f'{info.id} exists')
             else:
                 self.logger.info(f'new download started:{info.id}')
                 self.download(info.url, repo_with_date)
                 self.logger.info(f'download:{info.id} success')
-            self.clear_tem(info.id, repo_with_date)
         else:
             self.logger.error('date folder check failed')
 
