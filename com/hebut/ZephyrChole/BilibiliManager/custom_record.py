@@ -65,7 +65,7 @@ class CustomRecordDownloader(RecordDownloader):
         not_overwrite_duplicate_files = ('-n',)
         download_video_method = ('-d', '3')  # 1.当前弹幕 2.全弹幕 3.视频 4.当前弹幕+视频 5.全弹幕+视频 6.仅字幕 7.仅封面图片 8.仅音频
         download_audio_method = ('-d', '8')
-        page = ('-p', ",".join([str(i) for i in range(len(info.pages))]))
+        page = ('-p', 'a')
         input_ = ('-i', info.id)
         target_dir = ('-o', self.repo)
         not_show_in_explorer = ('--nol',)  # only valid on windows system.
