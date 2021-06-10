@@ -89,13 +89,13 @@ class LiveRecordDownloader(RecordDownloader):
     def monitor_download(self, info):
         repo_with_date = os.path.join(self.repo, info.get_date())
         if check_path(repo_with_date):
-            self.clear_tem(info.id, repo_with_date)
-            if self.isExist(info, repo_with_date):
+            if self.isExist(info, repo_with_date) and not self.hasTem(info.id,repo_with_date):
                 self.logger.info(f'{info.id} exists')
             else:
                 self.logger.info(f'new download started:{info.id}')
                 self.download(info.url, repo_with_date)
                 self.logger.info(f'download:{info.id} success')
+                self.clear_tem(info.id, repo_with_date)
         else:
             self.logger.error('date folder check failed')
 
@@ -105,11 +105,19 @@ class LiveRecordDownloader(RecordDownloader):
                 return True
         return False
 
-    def clear_tem(self, id, repo_with_date):
+    def hasTem(self, id, repo_with_date):
+        for file in os.listdir(repo_with_date):
+            if self.isTem(id, file): return True
+        return False
+
+    def isTem(self, id, file):
         unfinish_finder = re.compile('_\d')
         id_finder = re.compile(id)
+        return unfinish_finder.search(file) and id_finder.search(file)
+
+    def clear_tem(self, id, repo_with_date):
         for file in os.listdir(repo_with_date):
-            if unfinish_finder.search(file) and id_finder.search(file):
+            if self.isTem(id, file):
                 full_path = os.path.join(repo_with_date, file)
                 os.remove(full_path)
                 self.logger.info(f'未完成下载:{full_path},已删除')
