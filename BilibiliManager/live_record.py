@@ -6,7 +6,7 @@
 # @time: 2/20/2021 12:44 PM
 import os
 import re
-from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader, check_path, get_headless_browser
+from BilibiliManager.public import RecordDownloader, check_path, get_headless_browser
 
 
 class LiveInfo:

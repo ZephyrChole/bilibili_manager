@@ -8,9 +8,9 @@ import os
 import xlrd
 import xlwt
 from bilibili_api import user
-from com.hebut.ZephyrChole.BilibiliManager.custom_record import CustomRecordDownloader
-from com.hebut.ZephyrChole.BilibiliManager.live_record import LiveRecordDownloader
-from com.hebut.ZephyrChole.BilibiliManager.public import check_path, get_file_logger
+from BilibiliManager.custom_record import CustomRecordDownloader
+from BilibiliManager.live_record import LiveRecordDownloader
+from BilibiliManager.public import check_path, get_file_logger
 
 
 class Downloader:

@@ -7,7 +7,7 @@ import os
 import re
 from bilibili_api import user
 from bilibili_api.video import get_pages
-from com.hebut.ZephyrChole.BilibiliManager.public import RecordDownloader
+from BilibiliManager.public import RecordDownloader
 
 
 class CustomInfo:

@@ -3,7 +3,7 @@
 # @software: PyCharm
 # @file: daemon.py
 # @time: 2/20/2021 1:54 PM
-from com.hebut.ZephyrChole.BilibiliManager.download import Downloader
+from BilibiliManager.download import Downloader
 import time
 
 attempt = 0
