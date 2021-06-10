@@ -111,7 +111,7 @@ class LiveRecordDownloader(RecordDownloader):
         return False
 
     def isTem(self, id, file):
-        unfinish_finder = re.compile('_\d')
+        unfinish_finder = re.compile('_\d+.flv')
         id_finder = re.compile(id)
         return unfinish_finder.search(file) and id_finder.search(file)
 
