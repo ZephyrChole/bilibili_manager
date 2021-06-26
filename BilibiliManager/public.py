@@ -75,7 +75,7 @@ class RecordDownloader(metaclass=ABCMeta):
             attempt = 0
             while attempt < self.max_retry:
                 if self.monitor_download(info):
-                    self.logger.info(f'{info.id} download success')
+                    pass
                 else:
                     attempt += 1
                     self.logger.info(f'{info.id} download timeout,{attempt} attempt')
@@ -87,7 +87,7 @@ class RecordDownloader(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def isExist(self, info, tar_dir):
+    def is_exist(self, info, tar_dir):
         pass
 
     @staticmethod

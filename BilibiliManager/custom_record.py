@@ -34,14 +34,19 @@ class CustomRecordDownloader(RecordDownloader):
         return infos
 
     def monitor_download(self, info):
-        if self.isExist(info, self.repo):
+        if self.is_exist(info, self.repo):
             self.logger.info(f'{info.id} exists')
             return True
         else:
             self.logger.info(f'new download started:{info.id}')
-            return self.download(info)
+            a = self.download(info)
+            if a:
+                self.logger.info(f'{info.id} download success')
+            else:
+                pass
+            return a
 
-    def isExist(self, info, tar_dir):
+    def is_exist(self, info, tar_dir):
         count = 0
         for file in os.listdir(tar_dir):
             if re.search(info.id, file):
