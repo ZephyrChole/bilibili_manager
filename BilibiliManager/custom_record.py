@@ -36,6 +36,7 @@ class CustomRecordDownloader(RecordDownloader):
     def monitor_download(self, info):
         if self.isExist(info, self.repo):
             self.logger.info(f'{info.id} exists')
+            return True
         else:
             self.logger.info(f'new download started:{info.id}')
             return self.download(info)

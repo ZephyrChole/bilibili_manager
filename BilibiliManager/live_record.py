@@ -13,9 +13,6 @@ class LiveInfo:
     def __init__(self, url, date_str):
         self.url = url
         self.id = re.search('([^/]+)$', url).group(1)
-        self.init_date(date_str)
-
-    def init_date(self, date_str):
         result = re.match('(\d{4})-(\d{2})-(\d{2}) (\d{1,2}):(\d{2})', date_str)
         self.yyyy = result.group(1)
         self.mm = result.group(2)
@@ -91,13 +88,15 @@ class LiveRecordDownloader(RecordDownloader):
         if check_path(repo_with_date):
             if self.isExist(info, repo_with_date) and not self.has_tem(info.id, repo_with_date):
                 self.logger.info(f'{info.id} exists')
+                return True
             else:
                 self.logger.info(f'new download started:{info.id}')
-                self.download(info.url, repo_with_date)
-                self.logger.info(f'download:{info.id} success')
+                a = self.download(info.url, repo_with_date)
                 self.clear_tem(info.id, repo_with_date)
+                return a
         else:
             self.logger.error('date folder check failed')
+            return True
 
     def isExist(self, info, tar_dir):
         for file in os.listdir(tar_dir):
@@ -152,5 +151,6 @@ class LiveRecordDownloader(RecordDownloader):
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        self.start_popen(parameters, cwd)
+        a = self.start_popen(parameters, cwd)
         os.chdir(cwd)
+        return a
