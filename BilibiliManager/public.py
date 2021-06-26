@@ -74,10 +74,9 @@ class RecordDownloader(metaclass=ABCMeta):
         for info in infos:
             attempt = 0
             while attempt < self.max_retry:
-                try:
-                    self.monitor_download(info)
+                if self.monitor_download(info):
                     break
-                except TimeoutExpired:
+                else:
                     attempt += 1
                     self.logger.info(f'{info.id} download timeout,{attempt} attempt')
             if attempt >= self.max_retry:
@@ -91,6 +90,13 @@ class RecordDownloader(metaclass=ABCMeta):
     def isExist(self, info, tar_dir):
         pass
 
-    def start_popen(self, parameters, cwd):
+    @staticmethod
+    def start_popen(parameters, cwd):
         log_file = os.path.join(cwd, 'log', f'{time.strftime("%Y-%m-%d-bili", time.localtime())}.log')
-        Popen(parameters, stdout=open(log_file, 'w')).wait(60 * 60)
+        try:
+            p = Popen(parameters, stdout=open(log_file, 'w'))
+            p.wait(60 * 60)
+            return True
+        except TimeoutExpired:
+            p.terminate()
+            return False
