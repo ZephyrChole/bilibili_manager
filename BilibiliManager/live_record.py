@@ -89,7 +89,7 @@ class LiveRecordDownloader(RecordDownloader):
     def monitor_download(self, info):
         repo_with_date = os.path.join(self.repo, info.get_date())
         if check_path(repo_with_date):
-            if self.isExist(info, repo_with_date) and not self.hasTem(info.id,repo_with_date):
+            if self.isExist(info, repo_with_date) and not self.has_tem(info.id, repo_with_date):
                 self.logger.info(f'{info.id} exists')
             else:
                 self.logger.info(f'new download started:{info.id}')
@@ -105,19 +105,21 @@ class LiveRecordDownloader(RecordDownloader):
                 return True
         return False
 
-    def hasTem(self, id, repo_with_date):
+    def has_tem(self, key_word, repo_with_date):
         for file in os.listdir(repo_with_date):
-            if self.isTem(id, file): return True
+            if self.is_tem(key_word, file):
+                return True
         return False
 
-    def isTem(self, id, file):
+    @staticmethod
+    def is_tem(key_word, file):
         unfinish_finder = re.compile('_\d+.flv')
-        id_finder = re.compile(id)
+        id_finder = re.compile(key_word)
         return unfinish_finder.search(file) and id_finder.search(file)
 
-    def clear_tem(self, id, repo_with_date):
+    def clear_tem(self, key_word, repo_with_date):
         for file in os.listdir(repo_with_date):
-            if self.isTem(id, file):
+            if self.is_tem(key_word, file):
                 full_path = os.path.join(repo_with_date, file)
                 os.remove(full_path)
                 self.logger.info(f'未完成下载:{full_path},已删除')
