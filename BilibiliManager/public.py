@@ -75,7 +75,7 @@ class RecordDownloader(metaclass=ABCMeta):
             attempt = 0
             while attempt < self.max_retry:
                 if self.monitor_download(info):
-                    pass
+                    break
                 else:
                     attempt += 1
                     self.logger.info(f'{info.id} download timeout,{attempt} attempt')
