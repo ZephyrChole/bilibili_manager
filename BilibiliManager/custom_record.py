@@ -38,8 +38,7 @@ class CustomRecordDownloader(RecordDownloader):
             self.logger.info(f'{info.id} exists')
         else:
             self.logger.info(f'new download started:{info.id}')
-            self.download(info)
-            self.logger.info(f'download:{info.id} success')
+            return self.download(info)
 
     def isExist(self, info, tar_dir):
         count = 0
@@ -85,9 +84,10 @@ class CustomRecordDownloader(RecordDownloader):
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        self.start_popen(parameters, cwd)
+        a = self.start_popen(parameters, cwd)
         parameters = []
         for p in download_audio_parameters:
             parameters.extend(p)
-        self.start_popen(parameters, cwd)
+        b = self.start_popen(parameters, cwd)
         os.chdir(cwd)
+        return a and b
