@@ -14,7 +14,7 @@ from BilibiliManager.public import check_path, get_file_logger
 
 
 class Downloader:
-    logger = get_file_logger(logging.DEBUG,'main')
+    logger = get_file_logger(logging.DEBUG, 'main')
 
     def __init__(self, download_script_repo, settings, upper_repo):
         self.download_script_repo = os.path.abspath(download_script_repo)
@@ -62,16 +62,16 @@ class UPTask:
         self.custom = info.get('custom')
         self.up = UP(info.get('uid'))
         self.repo = os.path.join(upper_repo, '{}-{}'.format(self.up.uid, self.up.name))
-        self.logger = get_file_logger(logging.DEBUG,f'UPTask {self.up.uid}')
+        self.logger = get_file_logger(logging.DEBUG, f'UPTask {self.up.uid}')
 
     def main(self):
         check_path('./log')
         self.logger.info(f'UP主:{self.up.name} uid:{self.up.uid} live_url:{self.up.live_url}')
         if self.custom:
-            CustomRecordDownloader(self.download_script_repo, self.repo, self.up).main()
+            CustomRecordDownloader(self.download_script_repo, self.logger, self.repo, self.up).main()
 
         if self.live:
-            LiveRecordDownloader(self.download_script_repo, self.repo, self.up).main()
+            LiveRecordDownloader(self.download_script_repo, self.logger, self.repo, self.up).main()
 
 
 class UP:

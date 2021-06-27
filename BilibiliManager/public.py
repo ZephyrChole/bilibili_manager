@@ -29,7 +29,7 @@ def check_path(dir_path):
 
 
 def get_file_logger(level, name):
-    formatter = logging.Formatter("%(asctime)s - %(name)s[line:%(lineno)d] - %(levelname)s: %(message)s")
+    formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
     count = 0
     while True:
         path = f'./log/{time.strftime("%Y-%m-%d", time.localtime())}-{count}.log'
@@ -56,11 +56,11 @@ class RecordDownloader(metaclass=ABCMeta):
     folder = 'default'
     max_retry = 3
 
-    def __init__(self, download_script_repo, upper_repo, up):
+    def __init__(self, download_script_repo, logger, upper_repo, up):
         self.download_script_repo = download_script_repo
         self.repo = os.path.join(upper_repo, self.folder)
         self.up = up
-        self.logger = get_file_logger(logging.DEBUG, f'downloader uid:{self.up.uid} folder:{self.folder}')
+        self.logger = logger
 
     def main(self):
         self.logger.info(f'{self.folder} download start')
