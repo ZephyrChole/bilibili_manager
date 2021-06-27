@@ -30,8 +30,14 @@ def check_path(dir_path):
 
 def get_file_logger(level, name):
     formatter = logging.Formatter("%(asctime)s - %(name)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-    fh = logging.FileHandler('./log/{}.log'.format(time.strftime("%Y-%m-%d", time.localtime())),
-                             encoding='utf-8')
+    count = 0
+    while True:
+        path = f'./log/{time.strftime("%Y-%m-%d", time.localtime())}-{count}.log'
+        if os.path.exists(path):
+            count += 1
+        else:
+            break
+    fh = logging.FileHandler(path, encoding='utf-8')
     fh.setLevel(level)
     fh.setFormatter(formatter)
     logger = logging.getLogger(name)
