@@ -26,7 +26,7 @@ class Downloader:
         if self.check_settings():
             self.logger.info('有配置文件，开始运行')
             for info in self.get_info(self.setting_path):
-                UPTask(self.download_script_repo, self.upper_repo, info).main()
+                UPTask(self.download_script_repo, self.logger, self.upper_repo, info).main()
             self.logger.info('成功！ 等待下一次唤醒...')
         else:
             self.logger.info('无配置文件，初始化后退出。。。')
@@ -56,13 +56,13 @@ class Downloader:
 
 
 class UPTask:
-    def __init__(self, download_script_repo, upper_repo, info):
+    def __init__(self, download_script_repo, logger, upper_repo, info):
         self.download_script_repo = download_script_repo
         self.live = info.get('live')
         self.custom = info.get('custom')
         self.up = UP(info.get('uid'))
         self.repo = os.path.join(upper_repo, '{}-{}'.format(self.up.uid, self.up.name))
-        self.logger = get_file_logger(logging.DEBUG, f'UPTask {self.up.uid}')
+        self.logger = logger
 
     def main(self):
         check_path('./log')
