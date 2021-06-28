@@ -5,6 +5,7 @@
 # @file: public.py
 # @time: 2/22/2021 9:36 PM
 import os
+import sys
 import time
 import logging
 from abc import ABCMeta, abstractmethod
@@ -28,21 +29,28 @@ def check_path(dir_path):
             return False
 
 
-def get_file_logger(level, name):
-    formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
-    count = 0
-    while True:
-        path = f'./log/{time.strftime("%Y-%m-%d", time.localtime())}-{count}.log'
-        if os.path.exists(path):
-            count += 1
-        else:
-            break
-    fh = logging.FileHandler(path, encoding='utf-8')
-    fh.setLevel(level)
-    fh.setFormatter(formatter)
+def get_logger(name, level, has_console, has_file):
+    formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s: %(message)s')
     logger = logging.getLogger(name)
     logger.setLevel(level)
-    logger.addHandler(fh)
+
+    if has_console:
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(level)
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+    if has_file:
+        count = 0
+        while True:
+            path = f'./log/{time.strftime("%Y-%m-%d", time.localtime())}-{count}.log'
+            if os.path.exists(path):
+                count += 1
+            else:
+                break
+        fh = logging.FileHandler(path, encoding='utf-8')
+        fh.setLevel(level)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
     return logger
 
 
@@ -60,7 +68,11 @@ class RecordDownloader(metaclass=ABCMeta):
         self.download_script_repo = download_script_repo
         self.repo = os.path.join(upper_repo, self.folder)
         self.up = up
-        self.logger = logger
+        self.logger = get_logger(f'{logger.name}_', logger.level, False, False)
+        self.logger.debug = lambda msg: logger.debug(f'{up.name} {msg}')
+        self.logger.info = lambda msg: logger.info(f'{up.name} {msg}')
+        self.logger.warning = lambda msg: logger.warning(f'{up.name} {msg}')
+        self.logger.error = lambda msg: logger.error(f'{up.name} {msg}')
 
     def main(self):
         self.logger.info(f'{self.folder} download start')

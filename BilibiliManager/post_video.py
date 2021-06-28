@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-#
 # Author:Jiawei Feng
 # @software: PyCharm
-# @file: custom_record.py
+# @file: post_video.py
 # @time: 2/20/2021 12:58 PM
 import os
 import re
@@ -16,7 +16,7 @@ class CustomInfo:
         self.pages = get_pages(bv)
 
 
-class CustomRecordDownloader(RecordDownloader):
+class PostVideoDownloader(RecordDownloader):
     folder = 'custom_record'
 
     def get_info(self):

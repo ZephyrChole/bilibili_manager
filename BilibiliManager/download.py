@@ -8,7 +8,7 @@ import os
 import xlrd
 import xlwt
 from bilibili_api import user
-from BilibiliManager.custom_record import CustomRecordDownloader
+from BilibiliManager.post_video import PostVideoDownloader
 from BilibiliManager.live_record import LiveRecordDownloader
 from BilibiliManager.public import check_path, get_file_logger
 
@@ -68,7 +68,7 @@ class UPTask:
         check_path('./log')
         self.logger.info(f'UP主:{self.up.name} uid:{self.up.uid} live_url:{self.up.live_url}')
         if self.custom:
-            CustomRecordDownloader(self.download_script_repo, self.logger, self.repo, self.up).main()
+            PostVideoDownloader(self.download_script_repo, self.logger, self.repo, self.up).main()
 
         if self.live:
             LiveRecordDownloader(self.download_script_repo, self.logger, self.repo, self.up).main()
