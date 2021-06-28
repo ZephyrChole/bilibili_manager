@@ -10,11 +10,11 @@ import xlwt
 from bilibili_api import user
 from BilibiliManager.post_video import PostVideoDownloader
 from BilibiliManager.live_record import LiveRecordDownloader
-from BilibiliManager.public import check_path, get_file_logger
+from BilibiliManager.public import check_path, get_logger
 
 
 class Downloader:
-    logger = get_file_logger(logging.DEBUG, 'main')
+    logger = get_logger('main', logging.DEBUG, False, True)
 
     def __init__(self, download_script_repo, settings, upper_repo):
         self.download_script_repo = os.path.abspath(download_script_repo)
