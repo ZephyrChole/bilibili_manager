@@ -90,7 +90,7 @@ class LiveRecordDownloader(RecordDownloader):
                 self.logger.info(f'{info.id} exists')
                 return True
             else:
-                self.logger.info(f'new download started:{info.id}')
+                self.logger.info(f'new download started:{info.id} {info.get_date}')
                 a = self.download(info.url, repo_with_date)
                 self.clear_tem(info.id, repo_with_date)
                 return a
