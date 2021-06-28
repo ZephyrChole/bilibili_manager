@@ -90,10 +90,10 @@ class PostVideoDownloader(RecordDownloader):
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        a = self.start_popen(parameters, cwd)
+        a = self.start_popen(parameters, cwd, 60 * 60)
         parameters = []
         for p in download_audio_parameters:
             parameters.extend(p)
-        b = self.start_popen(parameters, cwd)
+        b = self.start_popen(parameters, cwd, 60 * 60)
         os.chdir(cwd)
         return a and b

@@ -151,6 +151,6 @@ class LiveRecordDownloader(RecordDownloader):
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        a = self.start_popen(parameters, cwd)
+        a = self.start_popen(parameters, cwd, 60 * 60 * 3)
         os.chdir(cwd)
         return a

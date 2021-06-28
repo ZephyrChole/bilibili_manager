@@ -109,11 +109,14 @@ class RecordDownloader(metaclass=ABCMeta):
         pass
 
     @staticmethod
-    def start_popen(parameters, cwd):
+    def start_popen(parameters, cwd, timeout=None):
         log_file = os.path.join(cwd, 'log', f'{time.strftime("%Y-%m-%d-bili", time.localtime())}.log')
         try:
             p = Popen(parameters, stdout=open(log_file, 'w'))
-            p.wait(60 * 60)
+            if timeout is not None:
+                p.wait(timeout)
+            else:
+                p.wait()
             return True
         except TimeoutExpired:
             p.terminate()
