@@ -40,7 +40,7 @@ def get_logger(name, level, has_console, has_file):
         ch.setFormatter(formatter)
         logger.addHandler(ch)
     if has_file:
-        count = 0
+        count = 1
         while True:
             path = f'./log/{time.strftime("%Y-%m-%d", time.localtime())}-{count}.log'
             if os.path.exists(path):
