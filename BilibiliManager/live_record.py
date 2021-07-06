@@ -86,9 +86,12 @@ class LiveRecordDownloader(RecordDownloader):
     def monitor_download(self, info):
         repo_with_date = os.path.join(self.repo, info.get_date())
         if check_path(repo_with_date):
-            if self.is_exist(info, repo_with_date) and not self.has_tem(info.id, repo_with_date):
-                self.logger.info(f'{info.id} exists')
-                return True
+            if self.is_exist(info, repo_with_date):
+                if self.has_tem(info.id, repo_with_date):
+                    self.clear_tem(info.id, repo_with_date)
+                else:
+                    self.logger.info(f'{info.id} exists')
+                    return True
             else:
                 self.logger.info(f'new download started:{info.id} {info.get_date}')
                 a = self.download(info.url, repo_with_date)
