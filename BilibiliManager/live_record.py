@@ -89,6 +89,7 @@ class LiveRecordDownloader(RecordDownloader):
             if self.is_exist(info, repo_with_date):
                 if self.has_tem(info.id, repo_with_date):
                     self.clear_tem(info.id, repo_with_date)
+                    return True
                 else:
                     self.logger.info(f'{info.id} exists')
                     return True
