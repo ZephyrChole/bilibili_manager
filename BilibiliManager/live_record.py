@@ -89,12 +89,13 @@ class LiveRecordDownloader(RecordDownloader):
             if self.is_exist(info, repo_with_date):
                 if self.has_tem(info.id, repo_with_date):
                     self.clear_tem(info.id, repo_with_date)
+                    self.logger.debug(f'clear tem {info.id} --> {info.get_date}')
                     return True
                 else:
-                    self.logger.info(f'{info.id} exists')
+                    self.logger.info(f'{info.id} exists --> {info.get_date}')
                     return True
             else:
-                self.logger.info(f'new download started:{info.id} {info.get_date} --> {info.get_date}')
+                self.logger.info(f'new download started:{info.id} --> {info.get_date}')
                 flag = self.download(info.url, repo_with_date)
                 self.clear_tem(info.id, repo_with_date)
                 return flag
