@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-#
 
-# Author:Jiawei Feng
+# Author:ZephyrChole
 # @software: PyCharm
 # @file: live_record.py
 # @time: 2/20/2021 12:44 PM
 import os
 import re
+from selenium.common import exceptions
 from BilibiliManager.public import RecordDownloader, check_path, get_headless_browser
 
 
@@ -20,7 +21,8 @@ class LiveInfo:
         self.HH = result.group(4)
         self.MM = result.group(5)
 
-    def get_date(self):
+    @property
+    def date(self):
         return '{}{}{}'.format(self.yyyy, self.mm, self.dd)
 
 
@@ -38,16 +40,16 @@ class LiveRecordDownloader(RecordDownloader):
                 browser.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative').click()
                 self.logger.info('got record page')
                 return True
-            except:
+            except exceptions.NoSuchElementException:
                 self.logger.warning("can't find record button")
                 return False
 
-        def get_url_and_date():
-            url = browser.find_element_by_css_selector(
-                'div.live-record-card-cntr.card:nth-child({}) a'.format(count)).get_attribute('href')
-            date = browser.find_element_by_css_selector(
-                'div.live-record-card-cntr.card:nth-child({}) a p:last-child'.format(count)).text
-            return url, date
+        def get_url_and_date(c):
+            u = browser.find_element_by_css_selector(
+                'div.live-record-card-cntr.card:nth-child({}) a'.format(c)).get_attribute('href')
+            d = browser.find_element_by_css_selector(
+                'div.live-record-card-cntr.card:nth-child({}) a p:last-child'.format(c)).text
+            return u, d
 
         def forward_page():
             try:
@@ -55,7 +57,7 @@ class LiveRecordDownloader(RecordDownloader):
                 browser.implicitly_wait(60)
                 self.logger.debug('page forward')
                 return True
-            except:
+            except exceptions.TimeoutException:
                 return False
 
         browser = get_headless_browser()
@@ -72,10 +74,10 @@ class LiveRecordDownloader(RecordDownloader):
             count = 1
             while True:
                 try:
-                    url, date = get_url_and_date()
+                    url, date = get_url_and_date(count)
                     download_infos.append(LiveInfo(url, date))
                     count += 1
-                except:
+                except exceptions.NoSuchElementException:
                     break
             if not forward_page():
                 break
@@ -84,18 +86,18 @@ class LiveRecordDownloader(RecordDownloader):
         return download_infos
 
     def monitor_download(self, info):
-        repo_with_date = os.path.join(self.repo, info.get_date())
+        repo_with_date = os.path.join(self.repo, info.date)
         if check_path(repo_with_date):
             if self.is_exist(info, repo_with_date):
                 if self.has_tem(info.id, repo_with_date):
                     self.clear_tem(info.id, repo_with_date)
-                    self.logger.debug(f'clear tem {info.id} --> {info.get_date}')
+                    self.logger.debug(f'clear tem {info.id} --> {info.date}')
                     return True
                 else:
-                    self.logger.info(f'{info.id} exists --> {info.get_date}')
+                    self.logger.info(f'{info.id} exists --> {info.date}')
                     return True
             else:
-                self.logger.info(f'new live:{info.id} --> {info.get_date}')
+                self.logger.info(f'new live:{info.id} --> {info.date}')
                 flag = self.download(info.url, repo_with_date)
                 self.clear_tem(info.id, repo_with_date)
                 return flag
