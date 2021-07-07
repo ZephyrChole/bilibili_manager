@@ -35,7 +35,8 @@ class Downloader:
     def check_settings(self):
         return os.path.exists(self.setting_path)
 
-    def get_info(self, file_path):
+    @staticmethod
+    def get_info(file_path):
         file = xlrd.open_workbook(file_path)
         sheet = file.sheet_by_index(0)
         raw_infos = [sheet.row_values(r) for r in range(sheet.nrows)]
