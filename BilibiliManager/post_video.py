@@ -38,7 +38,7 @@ class PostVideoDownloader(RecordDownloader):
             self.logger.info(f'{info.id} exists')
             return True
         else:
-            self.logger.info(f'new download started:{info.id}')
+            self.logger.info(f'new post video:{info.id}')
             a = self.download(info)
             if a:
                 self.logger.info(f'{info.id} download success')
