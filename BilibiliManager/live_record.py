@@ -6,7 +6,6 @@
 # @time: 2/20/2021 12:44 PM
 import os
 import re
-from selenium.common import exceptions
 from BilibiliManager.public import RecordDownloader, check_path, get_headless_browser
 
 
@@ -40,7 +39,8 @@ class LiveRecordDownloader(RecordDownloader):
                 browser.find_element_by_css_selector('li.item:last-child>span.dp-i-block.p-relative').click()
                 self.logger.info('got record page')
                 return True
-            except exceptions.NoSuchElementException:
+            except Exception as e:
+                self.logger.warning(str(e))
                 self.logger.warning("can't find record button")
                 return False
 
@@ -57,7 +57,8 @@ class LiveRecordDownloader(RecordDownloader):
                 browser.implicitly_wait(60)
                 self.logger.debug('page forward')
                 return True
-            except exceptions.TimeoutException:
+            except Exception as e:
+                self.logger.warning(str(e))
                 return False
 
         browser = get_headless_browser()
@@ -77,7 +78,8 @@ class LiveRecordDownloader(RecordDownloader):
                     url, date = get_url_and_date(count)
                     download_infos.append(LiveInfo(url, date))
                     count += 1
-                except exceptions.NoSuchElementException:
+                except Exception as e:
+                    self.logger.warning(str(e))
                     break
             if not forward_page():
                 break
