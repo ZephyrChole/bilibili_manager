@@ -10,7 +10,7 @@ from bilibili_api.video import get_pages
 from BilibiliManager.public import RecordDownloader
 
 
-class CustomInfo:
+class PostVideoInfo:
     def __init__(self, bv):
         self.id = bv
         self.pages = get_pages(bv)
@@ -29,7 +29,7 @@ class PostVideoDownloader(RecordDownloader):
                 page += 1
             else:
                 break
-        infos = list(map(lambda x: CustomInfo(x), set(infos)))
+        infos = list(map(lambda x: PostVideoInfo(x), set(infos)))
         self.logger.info('got infos,length:{}'.format(len(infos)))
         return infos
 
