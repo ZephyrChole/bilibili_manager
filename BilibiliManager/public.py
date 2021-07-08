@@ -92,7 +92,7 @@ class RecordDownloader(metaclass=ABCMeta):
         for info in infos:
             attempt = 0
             while attempt < self.max_retry:
-                if self.monitor_download(info):
+                if self.download(info):
                     break
                 else:
                     attempt += 1
@@ -101,18 +101,22 @@ class RecordDownloader(metaclass=ABCMeta):
                 self.logger.info(f'{info.id} download fail,skipping...')
 
     @abstractmethod
-    def monitor_download(self, info):
+    def download(self, info):
         pass
 
     @abstractmethod
     def is_complete(self, info, tar_dir):
         pass
 
+    @abstractmethod
+    def raw_download(self, info, tar_dir):
+        pass
+
     @staticmethod
     def start_popen(parameters, cwd, timeout=None):
         log_file = os.path.join(cwd, 'log', f'{time.strftime("%Y-%m-%d-bili", time.localtime())}.log')
+        p = Popen(parameters, stdout=open(log_file, 'w'))
         try:
-            p = Popen(parameters, stdout=open(log_file, 'w'))
             if timeout is not None:
                 p.wait(timeout)
             else:

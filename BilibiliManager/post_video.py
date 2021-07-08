@@ -33,13 +33,13 @@ class PostVideoDownloader(RecordDownloader):
         self.logger.info('got infos,length:{}'.format(len(infos)))
         return infos
 
-    def monitor_download(self, info):
+    def download(self, info):
         if self.is_complete(info, self.repo):
             self.logger.info(f'{info.id} exists')
             return True
         else:
             self.logger.info(f'new post video:{info.id}')
-            flag = self.download(info)
+            flag = self.raw_download(info, self.repo)
             if flag:
                 self.logger.info(f'{info.id} download success')
             return flag
@@ -51,7 +51,7 @@ class PostVideoDownloader(RecordDownloader):
                 count += 1
         return count == 2 * len(info.pages)
 
-    def download(self, info):
+    def raw_download(self, info, tar_dir):
         cwd = os.getcwd()
         os.chdir(self.download_script_repo)
         # python & download script path
@@ -70,7 +70,7 @@ class PostVideoDownloader(RecordDownloader):
         download_audio_method = ('-d', '8')
         page = ('-p', 'a')
         input_ = ('-i', info.id)
-        target_dir = ('-o', self.repo)
+        target_dir = ('-o', tar_dir)
         not_show_in_explorer = ('--nol',)  # only valid on windows system.
         silent_mode = ('-s',)
         download_video_parameters = [python_ver_and_script, highest_image_quality, continued_download,

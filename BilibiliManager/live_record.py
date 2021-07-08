@@ -88,7 +88,7 @@ class LiveRecordDownloader(RecordDownloader):
         download_infos.reverse()
         return download_infos
 
-    def monitor_download(self, info):
+    def download(self, info):
         repo_with_date = os.path.join(self.repo, info.date)
         if not check_path(repo_with_date):
             self.logger.error('date folder check failed')
@@ -99,7 +99,7 @@ class LiveRecordDownloader(RecordDownloader):
                 return True
             else:
                 self.logger.info(f'new live:{info.id} --> {info.date}')
-                return self.download(info, repo_with_date)
+                return self.raw_download(info, repo_with_date)
 
     def is_complete(self, info, tar_dir):
         for file in os.listdir(tar_dir):
@@ -107,7 +107,7 @@ class LiveRecordDownloader(RecordDownloader):
                 return not os.path.exists(os.path.join(tar_dir, f'{info.id}.downloading.ignore'))
         return False
 
-    def download(self, info, tar_dir):
+    def raw_download(self, info, tar_dir):
         # add a lock
         lock = os.path.join(tar_dir, f'{info.id}.downloading.ignore')
         open(lock, 'w').close()
