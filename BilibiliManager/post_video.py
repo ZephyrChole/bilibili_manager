@@ -39,12 +39,10 @@ class PostVideoDownloader(RecordDownloader):
             return True
         else:
             self.logger.info(f'new post video:{info.id}')
-            a = self.download(info)
-            if a:
+            flag = self.download(info)
+            if flag:
                 self.logger.info(f'{info.id} download success')
-            else:
-                pass
-            return a
+            return flag
 
     def is_complete(self, info, tar_dir):
         count = 0
