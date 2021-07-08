@@ -85,6 +85,7 @@ class LiveRecordDownloader(RecordDownloader):
                 break
         self.logger.info('got download_infos,length:{}'.format(len(download_infos)))
         browser.quit()
+        download_infos.reverse()
         return download_infos
 
     def monitor_download(self, info):
