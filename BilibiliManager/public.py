@@ -113,7 +113,7 @@ class RecordDownloader(metaclass=ABCMeta):
         pass
 
     @staticmethod
-    def start_popen(parameters, cwd, timeout=None):
+    def start_Popen_wait(parameters, cwd, timeout=None):
         log_file = os.path.join(cwd, 'log', f'{time.strftime("%Y-%m-%d-bili", time.localtime())}.log')
         p = Popen(parameters, stdout=open(log_file, 'w'))
         try:
