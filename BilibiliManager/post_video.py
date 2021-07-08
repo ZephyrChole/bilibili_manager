@@ -34,7 +34,7 @@ class PostVideoDownloader(RecordDownloader):
         return infos
 
     def monitor_download(self, info):
-        if self.is_exist(info, self.repo):
+        if self.is_complete(info, self.repo):
             self.logger.info(f'{info.id} exists')
             return True
         else:
@@ -46,7 +46,7 @@ class PostVideoDownloader(RecordDownloader):
                 pass
             return a
 
-    def is_exist(self, info, tar_dir):
+    def is_complete(self, info, tar_dir):
         count = 0
         for file in os.listdir(tar_dir):
             if re.search(info.id, file):

@@ -105,7 +105,7 @@ class RecordDownloader(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def is_exist(self, info, tar_dir):
+    def is_complete(self, info, tar_dir):
         pass
 
     @staticmethod
