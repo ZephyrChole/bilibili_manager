@@ -90,7 +90,7 @@ class LiveRecordDownloader(RecordDownloader):
     def monitor_download(self, info):
         repo_with_date = os.path.join(self.repo, info.date)
         if check_path(repo_with_date):
-            if self.is_exist(info.id, repo_with_date):
+            if self.is_exist(info, repo_with_date):
                 self.logger.info(f'{info.id} exists --> {info.date}')
                 if self.has_tem(info.id, repo_with_date):
                     self.clear_tem(info.id, repo_with_date)
@@ -98,18 +98,15 @@ class LiveRecordDownloader(RecordDownloader):
                 return True
             else:
                 self.logger.info(f'new live:{info.id} --> {info.date}')
-                flag = self.download(info.url, repo_with_date)
+                flag = self.download(info, repo_with_date)
                 self.clear_tem(info.id, repo_with_date)
                 return flag
         else:
             self.logger.error('date folder check failed')
             return True
 
-    def is_exist(self, keyword, tar_dir):
-        for file in os.listdir(tar_dir):
-            if re.search(keyword, file) and not self.is_tem(keyword, file):
-                return True
-        return False
+    def is_exist(self, info, tar_dir):
+        return os.path.exists(os.path.join(tar_dir, f'{info.id}.downloading.ignore'))
 
     def has_tem(self, key_word, repo_with_date):
         for file in os.listdir(repo_with_date):
@@ -130,7 +127,10 @@ class LiveRecordDownloader(RecordDownloader):
                 os.remove(full_path)
                 self.logger.info(f'未完成下载:{full_path},已删除')
 
-    def download(self, url, tar_dir):
+    def download(self, info, tar_dir):
+        # add a lock
+        lock = os.path.join(tar_dir, f'{info.id}.downloading.ignore')
+        open(lock, 'w').close()
         cwd = os.getcwd()
         os.chdir(self.download_script_repo)
         # python & download script path
@@ -141,17 +141,17 @@ class LiveRecordDownloader(RecordDownloader):
         not_delete_by_product_caption_after_downloading = ('--bd',)
         add_avbv2filename = ('--in',)
         redownload_after_download = ('--yr',)
-        use_ffmpeg = ('--yf',)
+        not_use_ffmpeg = ('--nf',)
         use_aria2c = ('--ar',)
         aria2c_speed = ('--ms', '3m')
         not_overwrite_duplicate_files = ('-n',)
         download_video_method = ('-d', '1')  # 1.视频 2.弹幕 3.视频+弹幕
-        input_ = ('-i', url)
+        input_ = ('-i', info.url)
         target_dir = ('-o', tar_dir)
         not_show_in_explorer = ('--nol',)  # only valid on windows system.
         silent_mode = ('-s',)
         download_video_parameters = [python_ver_and_script, highest_image_quality, continued_download,
-                                     delete_useless_file_after_downloading, redownload_after_download, use_ffmpeg,
+                                     delete_useless_file_after_downloading, redownload_after_download, not_use_ffmpeg,
                                      not_delete_by_product_caption_after_downloading, add_avbv2filename, use_aria2c,
                                      aria2c_speed, not_overwrite_duplicate_files, download_video_method, input_,
                                      target_dir, not_show_in_explorer, silent_mode]
@@ -160,4 +160,6 @@ class LiveRecordDownloader(RecordDownloader):
             parameters.extend(p)
         a = self.start_popen(parameters, cwd, 60 * 60 * 3)
         os.chdir(cwd)
+        # release a lock
+        os.remove(lock)
         return a
