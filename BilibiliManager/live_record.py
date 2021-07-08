@@ -138,7 +138,7 @@ class LiveRecordDownloader(RecordDownloader):
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        a = self.start_Popen_wait(parameters, cwd, 60 * 60 * 3)
+        a = self.start_Popen_stdout2file_wait(parameters, cwd, 60 * 60 * 3)
         os.chdir(cwd)
         # release a lock
         os.remove(lock)
