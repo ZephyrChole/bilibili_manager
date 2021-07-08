@@ -92,40 +92,19 @@ class LiveRecordDownloader(RecordDownloader):
         if check_path(repo_with_date):
             if self.is_exist(info, repo_with_date):
                 self.logger.info(f'{info.id} exists --> {info.date}')
-                if self.has_tem(info.id, repo_with_date):
-                    self.clear_tem(info.id, repo_with_date)
-                    self.logger.debug(f'clear tem {info.id} --> {info.date}')
                 return True
             else:
                 self.logger.info(f'new live:{info.id} --> {info.date}')
-                flag = self.download(info, repo_with_date)
-                self.clear_tem(info.id, repo_with_date)
-                return flag
+                return self.download(info, repo_with_date)
         else:
             self.logger.error('date folder check failed')
             return True
 
     def is_exist(self, info, tar_dir):
-        return os.path.exists(os.path.join(tar_dir, f'{info.id}.downloading.ignore'))
-
-    def has_tem(self, key_word, repo_with_date):
-        for file in os.listdir(repo_with_date):
-            if self.is_tem(key_word, file):
-                return True
+        for file in os.listdir(tar_dir):
+            if re.search(info.id, file):
+                return not os.path.exists(os.path.join(tar_dir, f'{info.id}.downloading.ignore'))
         return False
-
-    @staticmethod
-    def is_tem(key_word, file):
-        unfinish_finder = re.compile('_\d+.flv')
-        id_finder = re.compile(key_word)
-        return unfinish_finder.search(file) and id_finder.search(file)
-
-    def clear_tem(self, key_word, repo_with_date):
-        for file in os.listdir(repo_with_date):
-            if self.is_tem(key_word, file):
-                full_path = os.path.join(repo_with_date, file)
-                os.remove(full_path)
-                self.logger.info(f'未完成下载:{full_path},已删除')
 
     def download(self, info, tar_dir):
         # add a lock
