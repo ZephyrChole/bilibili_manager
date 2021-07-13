@@ -99,17 +99,16 @@ class LiveRecordDownloader(RecordDownloader):
         if not check_path(repo_with_date):
             self.logger.error('date folder check failed')
             return True
+        elif self.is_complete(info, repo_with_date):
+            self.logger.info(f'{info.id} exists --> {info.date}')
+            return True
         else:
-            if self.is_complete(info, repo_with_date):
-                self.logger.info(f'{info.id} exists --> {info.date}')
-                return True
-            else:
-                self.logger.info(f'new live:{info.id} --> {info.date}')
-                lock_path = os.path.join(repo_with_date, f'{info.id}.downloading.ignore')
-                add_lock(lock_path)
-                r = self.raw_download(info, repo_with_date)
-                release_lock(lock_path)
-                return r
+            self.logger.info(f'new live:{info.id} --> {info.date}')
+            lock_path = os.path.join(repo_with_date, f'{info.id}.downloading.ignore')
+            add_lock(lock_path)
+            r = self.raw_download(info, repo_with_date)
+            release_lock(lock_path)
+            return r
 
     def is_complete(self, info, tar_dir):
         for file in os.listdir(tar_dir):
