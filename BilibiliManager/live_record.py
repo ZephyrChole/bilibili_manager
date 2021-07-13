@@ -89,6 +89,12 @@ class LiveRecordDownloader(RecordDownloader):
         return download_infos
 
     def download(self, info):
+        def add_lock(p):
+            open(p, 'w').close()
+
+        def release_lock(p):
+            os.remove(p)
+
         repo_with_date = os.path.join(self.repo, info.date)
         if not check_path(repo_with_date):
             self.logger.error('date folder check failed')
@@ -99,7 +105,11 @@ class LiveRecordDownloader(RecordDownloader):
                 return True
             else:
                 self.logger.info(f'new live:{info.id} --> {info.date}')
-                return self.raw_download(info, repo_with_date)
+                lock_path = os.path.join(repo_with_date, f'{info.id}.downloading.ignore')
+                add_lock(lock_path)
+                r = self.raw_download(info, repo_with_date)
+                release_lock(lock_path)
+                return r
 
     def is_complete(self, info, tar_dir):
         for file in os.listdir(tar_dir):
@@ -108,9 +118,6 @@ class LiveRecordDownloader(RecordDownloader):
         return False
 
     def raw_download(self, info, tar_dir):
-        # add a lock
-        lock = os.path.join(tar_dir, f'{info.id}.downloading.ignore')
-        open(lock, 'w').close()
         cwd = os.getcwd()
         os.chdir(self.download_script_repo)
         # python & download script path
@@ -138,8 +145,6 @@ class LiveRecordDownloader(RecordDownloader):
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)
-        a = self.start_Popen_stdout2file_wait(parameters, cwd, 60 * 60 * 3)
+        r = self.start_Popen_stdout2file_wait(parameters, cwd, 60 * 60 * 3)
         os.chdir(cwd)
-        # release a lock
-        os.remove(lock)
-        return a
+        return r
