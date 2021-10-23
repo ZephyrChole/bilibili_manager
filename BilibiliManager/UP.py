@@ -6,11 +6,11 @@ from BilibiliManager.public import check_path
 
 
 class UPTask:
-    def __init__(self, download_script_repo, logger, upper_repo, info):
+    def __init__(self, download_script_repo, logger, upper_repo, uid, live, custom):
         self.download_script_repo = download_script_repo
-        self.live = info.get('live')
-        self.custom = info.get('custom')
-        self.up = UPInfo(info.get('uid'))
+        self.live = live
+        self.custom = custom
+        self.up = UPInfo(uid)
         self.repo = os.path.join(upper_repo, '{}-{}'.format(self.up.uid, self.up.name))
         self.logger = logger
 
