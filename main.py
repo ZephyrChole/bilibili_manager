@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-#
 # Author:ZephyrChole
 # @software: PyCharm
-# @file: daemon.py
+# @file: main.py
 # @time: 2/20/2021 1:54 PM
 from BilibiliManager.download import Downloader
 
