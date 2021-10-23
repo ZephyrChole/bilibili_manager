@@ -9,7 +9,7 @@ import re
 from BilibiliManager.public import RecordDownloader, check_path, get_headless_browser
 
 
-class LiveInfo:
+class LiveVideoInfo:
     def __init__(self, url, date_str):
         self.url = url
         self.id = re.search('([^/]+)$', url).group(1)
@@ -62,31 +62,40 @@ class LiveRecordDownloader(RecordDownloader):
                 return False
 
         browser = get_headless_browser()
+
+        def is_normal():
+            return reload < MAX_RELOAD
+
         enter_live()
-        a = 0
-        while a < 3:
-            a += 1
+        reload = 0
+        MAX_RELOAD = 3
+        while is_normal():
+            reload += 1
             if get_record_page():
                 break
             else:
                 enter_live()
-        download_infos = []
+        if not is_normal():
+            return False
+
+        download_info = []
         while True:
             count = 1
             while True:
                 try:
                     url, date = get_url_and_date(count)
-                    download_infos.append(LiveInfo(url, date))
+                    download_info.append(LiveVideoInfo(url, date))
                     count += 1
                 except Exception as e:
                     self.logger.warning(str(e))
                     break
             if not forward_page():
                 break
-        self.logger.info('got download_infos,length:{}'.format(len(download_infos)))
+
+        self.logger.info('got download_infos,length:{}'.format(len(download_info)))
         browser.quit()
-        download_infos.reverse()
-        return download_infos
+        download_info.reverse()
+        return download_info
 
     def download(self, info):
         def add_lock(p):

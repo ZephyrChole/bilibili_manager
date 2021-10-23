@@ -14,14 +14,14 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 
-def check_path(dir_path):
-    if os.path.exists(dir_path) and os.path.isdir(dir_path):
+def check_path(folder_path):
+    if os.path.exists(folder_path) and os.path.isdir(folder_path):
         return True
     else:
-        path = os.path.split(dir_path)[0]
+        path = os.path.split(folder_path)[0]
         if check_path(path):
             try:
-                os.mkdir(dir_path)
+                os.mkdir(folder_path)
                 return True
             except:
                 return False
@@ -60,45 +60,53 @@ def get_headless_browser():
     return webdriver.Chrome(chrome_options=chrome_options)
 
 
+def wrap_logger(logger, head_msg):
+    logger.debug = lambda msg: logger.debug(f'{head_msg} {msg}')
+    logger.info = lambda msg: logger.info(f'{head_msg} {msg}')
+    logger.warning = lambda msg: logger.warning(f'{head_msg} {msg}')
+    logger.error = lambda msg: logger.error(f'{head_msg} {msg}')
+
+
 class RecordDownloader(metaclass=ABCMeta):
     folder = 'default'
-    max_retry = 3
 
     def __init__(self, download_script_repo, logger, upper_repo, up):
         self.download_script_repo = download_script_repo
         self.repo = os.path.join(upper_repo, self.folder)
         self.up = up
         self.logger = get_logger(f'{logger.name}_', logger.level, False, False)
-        self.logger.debug = lambda msg: logger.debug(f'{up.name} {msg}')
-        self.logger.info = lambda msg: logger.info(f'{up.name} {msg}')
-        self.logger.warning = lambda msg: logger.warning(f'{up.name} {msg}')
-        self.logger.error = lambda msg: logger.error(f'{up.name} {msg}')
+        wrap_logger(self.logger, self.up.name)
 
     def main(self):
         self.logger.info(f'{self.folder} download start')
-        if check_path(self.repo):
+        r = check_path(self.repo)
+        if r:
             self.logger.info('path check success')
             self.start_download(self.get_info())
-            return True
         else:
             self.logger.error('path check fail')
-            return False
+        return r
 
     @abstractmethod
     def get_info(self):
         pass
 
-    def start_download(self, infos):
-        for info in infos:
-            attempt = 0
-            while attempt < self.max_retry:
-                if self.download(info):
+    def start_download(self, info):
+        def is_normal():
+            return reload < MAX_RELOAD
+
+        MAX_RELOAD = 3
+        for i in info:
+            reload = 0
+            while is_normal():
+                if self.download(i):
                     break
                 else:
-                    attempt += 1
-                    self.logger.info(f'{info.id} download timeout,{attempt} attempt')
-            if attempt >= self.max_retry:
-                self.logger.info(f'{info.id} download fail,skipping...')
+                    self.logger.info(f'{i.id} download timeout,{reload} attempt')
+                    reload += 1
+            if not is_normal():
+                self.logger.info(f'{i.id} download fail,skipping...')
+            return is_normal()
 
     @abstractmethod
     def download(self, info):

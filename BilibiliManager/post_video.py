@@ -20,18 +20,20 @@ class PostVideoDownloader(RecordDownloader):
     folder = 'custom_record'
 
     def get_info(self):
-        infos = []
+        info = []
         page = 1
         while True:
             vlist = user.get_videos_raw(uid=self.up.uid, pn=page).get('list').get('vlist')
             if len(vlist):
-                infos.extend([video.get('bvid') for video in vlist])
+                for video in vlist:
+                    info.append(video.get('bvid'))
                 page += 1
             else:
                 break
-        infos = list(map(lambda x: PostVideoInfo(x), set(infos)))
-        self.logger.info('got infos,length:{}'.format(len(infos)))
-        return infos
+
+        info = [PostVideoInfo(i) for i in info]
+        self.logger.info('got infos,length:{}'.format(len(info)))
+        return info
 
     def download(self, info):
         if self.is_complete(info, self.repo):
@@ -85,6 +87,7 @@ class PostVideoDownloader(RecordDownloader):
                                      redownload_after_download, use_ffmpeg, use_aria2c, aria2c_speed,
                                      not_overwrite_duplicate_files, download_audio_method, page, input_, target_dir,
                                      not_show_in_explorer, silent_mode]
+
         parameters = []
         for p in download_video_parameters:
             parameters.extend(p)

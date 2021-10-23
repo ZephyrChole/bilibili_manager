@@ -7,10 +7,8 @@ import logging
 import os
 import xlrd
 import xlwt
-from bilibili_api import user
-from BilibiliManager.post_video import PostVideoDownloader
-from BilibiliManager.live_record import LiveRecordDownloader
-from BilibiliManager.public import check_path, get_logger
+from BilibiliManager.public import get_logger
+from BilibiliManager.UP import UPTask
 
 
 class Downloader:
@@ -22,17 +20,32 @@ class Downloader:
         self.upper_repo = os.path.abspath(upper_repo)
 
     def main(self):
-        self.logger.debug(f'pid:{os.getpid()}')
-        if self.check_settings():
-            self.logger.info('有配置文件，开始运行')
-            for info in self.get_info(self.setting_path):
-                UPTask(self.download_script_repo, self.logger, self.upper_repo, info).main()
-            self.logger.info('成功！ 等待下一次唤醒...')
-        else:
-            self.logger.info('无配置文件，初始化后退出。。。')
-            self.init_setting()
+        def is_normal():
+            return reload < MAX_RELOAD
 
-    def check_settings(self):
+        reload = 0
+        MAX_RELOAD = 3
+        while is_normal():
+            try:
+                self.logger.debug(f'pid:{os.getpid()}')
+                if self.has_settings():
+                    self.logger.info('有配置文件，开始运行')
+                    for info in self.get_info(self.setting_path):
+                        UPTask(self.download_script_repo, self.logger, self.upper_repo, info).main()
+                    self.logger.info('成功！ 等待下一次唤醒...')
+                else:
+                    self.logger.info('无配置文件，初始化后退出。。。')
+                    self.init_setting()
+                break
+            except Exception as e:
+                print(e)
+                reload += 1
+        if is_normal():
+            return True
+        else:
+            return False
+
+    def has_settings(self):
         return os.path.exists(self.setting_path)
 
     @staticmethod
@@ -54,29 +67,3 @@ class Downloader:
                 sheet.write(j, k, data[j][k])
         file.save(self.setting_path)
         self.logger.info('up info saved')
-
-
-class UPTask:
-    def __init__(self, download_script_repo, logger, upper_repo, info):
-        self.download_script_repo = download_script_repo
-        self.live = info.get('live')
-        self.custom = info.get('custom')
-        self.up = UP(info.get('uid'))
-        self.repo = os.path.join(upper_repo, '{}-{}'.format(self.up.uid, self.up.name))
-        self.logger = logger
-
-    def main(self):
-        check_path('./log')
-        self.logger.info(f'UP主:{self.up.name} uid:{self.up.uid} live_url:{self.up.live_url}')
-        if self.custom:
-            PostVideoDownloader(self.download_script_repo, self.logger, self.repo, self.up).main()
-
-        if self.live:
-            LiveRecordDownloader(self.download_script_repo, self.logger, self.repo, self.up).main()
-
-
-class UP:
-    def __init__(self, uid):
-        self.uid = int(uid)
-        self.name = user.get_user_info(uid=self.uid).get('name')
-        self.live_url = user.get_live_info(uid=self.uid).get('url')
